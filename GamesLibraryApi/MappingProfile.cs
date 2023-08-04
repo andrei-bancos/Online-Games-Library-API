@@ -12,6 +12,8 @@ namespace GamesLibraryApi
             CreateMap<GameDto, Game>();
             CreateMap<Genre, GenreDto>();
             CreateMap<GenreDto, Genre>();
+            CreateMap<Tag, TagDto>();
+            CreateMap<TagDto, Tag>();
         }
     }
 }

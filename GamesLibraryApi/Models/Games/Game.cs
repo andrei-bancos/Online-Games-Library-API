@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace GamesLibraryApi.Models.Games
+﻿namespace GamesLibraryApi.Models.Games
 {
     public class Game
     {
@@ -17,5 +15,9 @@ namespace GamesLibraryApi.Models.Games
         public DateTime ReleaseDate { get; set; }
         public string Company { get; set; }
         public ICollection<Genre> Genres { get; set; }
+        public ICollection<Tag> Tags { get; set; }
+        public ICollection<Media> Media { get; set; }
+        public ICollection<CompatibilySystem> compatibilySystems { get; set; }
+        public ICollection<Language> Languages { get; set; }
     }
 }

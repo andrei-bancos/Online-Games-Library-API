@@ -1,5 +1,6 @@
 using GamesLibraryApi.Data;
 using GamesLibraryApi.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 
@@ -22,10 +23,11 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddSqlite<DataContext>("Data Source = database.db");
+builder.Services.AddDbContext<DataContext>(options => options.UseInMemoryDatabase("database"));
 
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<GenreService>();
+builder.Services.AddScoped<TagService>();
 
 var app = builder.Build();
 

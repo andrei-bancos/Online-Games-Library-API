@@ -13,60 +13,167 @@ namespace GamesLibraryApi.Services
             _context = context;
         }
 
-        public ICollection<Game> GetGames()
+        public async Task<ICollection<Game>> GetGames()
         {
-            return _context.Games.AsNoTracking().ToList();
+            return await _context.Games.AsNoTracking().ToListAsync();
         }
 
-        public Game? GetById(int id)
+        public async Task<Game?> GetById(int id)
         {
-            return _context.Games
+            return await _context.Games
                 .Include(g => g.Genres)
-                .FirstOrDefault(g => g.Id == id);
+                .Include(g => g.Tags)
+                .Include(g => g.Media)
+                .Include(g => g.compatibilySystems)
+                .Include(g => g.Languages)
+                .FirstOrDefaultAsync(g => g.Id == id);
         }
 
-        public bool Add(Game newGame)
+        public async Task<bool> CheckGameExists(string name)
         {
-            _context.Games.Add(newGame);
-            return Save();
+            return await _context.Games
+            .AnyAsync(g => g.Name.Trim().ToLower() == name.TrimEnd().ToLower());
         }
 
-        public bool AddGenreToGame(int gameId, int genreId)
+        public async Task<bool> Add(Game newGame)
         {
-            var game = _context.Games.Include(g => g.Genres)
-                        .FirstOrDefault(g => g.Id == gameId);
-            var genre = _context.Genres.Find(genreId);
+            await _context.Games.AddAsync(newGame);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> AddGenreToGame(int gameId, int genreId)
+        {
+            var game = await _context.Games.Include(g => g.Genres)
+                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            var genre = await _context.Genres.FindAsync(genreId);
 
             if(game == null || genre == null) return false;
 
             game.Genres.Add(genre);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Delete(int id)
+        public async Task<bool> AddTagToGame(int gameId, int tagId)
         {
-            var gameToDelete = _context.Games.Find(id);
+            var game = await _context.Games.Include(g => g.Tags)
+                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            var tag = await _context.Tags.FindAsync(tagId);
+
+            if (game == null || tag == null) return false;
+
+            game.Tags.Add(tag);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> AddSystemToGame(int gameId, int systemId)
+        {
+            var game = await _context.Games.Include(g => g.compatibilySystems)
+                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            var system = await _context.CompatibilySystems.FindAsync(systemId);
+
+            if (game == null || system == null) return false;
+
+            game.compatibilySystems.Add(system);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> AddLanguageToGame(int gameId, int langId)
+        {
+            var game = await _context.Games.Include(g => g.Languages)
+                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            var lang = await _context.Languages.FindAsync(langId);
+
+            if (game == null || lang == null) return false;
+
+            game.Languages.Add(lang);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> DeleteGame(int id)
+        {
+            var gameToDelete = await _context.Games.FindAsync(id);
             if (gameToDelete == null) return false;
             _context.Games.Remove(gameToDelete);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool DeleteGenre(int gameId, int genreId)
+        public async Task<bool> DeleteGenre(int gameId, int genreId)
         {
-            var game = _context.Games.Include(g => g.Genres)
-                        .FirstOrDefault(g => g.Id == gameId);
-            var genre = _context.Genres.Find(genreId);
+            var game = await _context.Games.Include(g => g.Genres)
+                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            var genre = await _context.Genres.FindAsync(genreId);
 
             if(game == null || genre == null) { return false; }
 
             game.Genres.Remove(genre);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> DeleteSystem(int gameId, int systemId)
         {
-            var saved = _context.SaveChanges();
-            return saved > 0 ? true : false;
+            var game = await _context.Games.Include(g => g.compatibilySystems)
+                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            var system = await _context.CompatibilySystems.FindAsync(systemId);
+
+            if (game == null || system == null) { return false; }
+
+            game.compatibilySystems.Remove(system);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> DeleteLang(int gameId, int langId)
+        {
+            var game = await _context.Games.Include(g => g.Languages)
+                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            var lang = await _context.Languages.FindAsync(langId);
+
+            if (game == null || lang == null) { return false; }
+
+            game.Languages.Remove(lang);
+            return await SaveAsync();
+        }
+
+        public async Task<ICollection<Media>> GetMediaByGameId(int id)
+        {
+            return await _context.Games
+                .Where(g => g.Id == id)
+                .SelectMany(g => g.Media)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<bool> CheckMediaExists(string url)
+        {
+            return await _context.Media
+            .AnyAsync(m => m.Url.ToLower() == url.ToLower());
+        }
+
+        public async Task<bool> AddMedia(int gameId,  Media m)
+        {
+            var game = await _context.Games.Include(g => g.Media)
+            .FirstOrDefaultAsync(g => g.Id == gameId);
+
+            if(game == null) return false;
+
+            game.Media.Add(m);
+            return await SaveAsync();
+        }
+
+        public async Task<Media?> GetMediaById(int id)
+        {
+            return await _context.Media.FindAsync(id);
+        }
+
+        public async Task<bool> DeleteMedia(Media m)
+        {
+            _context.Media.Remove(m);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> SaveAsync()
+        {
+            var saved = await _context.SaveChangesAsync();
+            return saved > 0;
         }
     }
 }

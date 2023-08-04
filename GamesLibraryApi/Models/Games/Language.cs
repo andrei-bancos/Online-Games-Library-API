@@ -2,10 +2,11 @@
 
 namespace GamesLibraryApi.Models.Games
 {
-    public class Genre
+    public class Language
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Code { get; set; }
         [JsonIgnore]
         public ICollection<Game> Games { get; set; }
     }

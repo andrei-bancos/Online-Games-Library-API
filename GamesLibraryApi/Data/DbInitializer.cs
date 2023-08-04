@@ -19,6 +19,22 @@ namespace GamesLibraryApi.Data
                 new Genre { Name = "Simulation" }
             };
 
+            var tags = new Tag[]
+            {
+                new Tag { Name = "Open World" },
+                new Tag { Name = "RPG Elements" },
+                new Tag { Name = "Multiplayer" },
+                new Tag { Name = "Puzzle Challenges" },
+                new Tag { Name = "Fast-Paced Action" }
+            };
+
+            var systems = new CompatibilySystem[]
+            {
+                new CompatibilySystem { Name = "Windows" },
+                new CompatibilySystem { Name = "Linux" },
+                new CompatibilySystem { Name = "macOS" }
+            };
+
             var games = new Game[]
             {
                 new Game
@@ -93,7 +109,19 @@ namespace GamesLibraryApi.Data
                 }
             };
 
+            var languages = new Language[]
+            {
+                new Language { Name = "English", Code = "en" },
+                new Language { Name = "Spanish", Code = "es" },
+                new Language { Name = "French", Code = "fr" },
+                new Language { Name = "German", Code = "de" },
+                new Language { Name = "Japanese", Code = "ja" },
+            };
+
             context.Genres.AddRange(genres);
+            context.Tags.AddRange(tags);
+            context.CompatibilySystems.AddRange(systems);
+            context.Languages.AddRange(languages);
             context.Games.AddRange(games);
             context.SaveChanges();
         }
