@@ -13,43 +13,49 @@ namespace GamesLibraryApi.Services
             _context = context;
         }
 
-        public ICollection<Genre> GetGenres()
+        public async Task<ICollection<Genre>> GetGenres()
         {
-            return _context.Genres.AsNoTracking().ToList();
+            return await _context.Genres.AsNoTracking().ToListAsync();
         }
 
-        public Genre? GetById(int id)
+        public Task<Genre?> GetById(int id)
         {
-            return _context.Genres.SingleOrDefault(g => g.Id == id);
+            return _context.Genres.SingleOrDefaultAsync(g => g.Id == id);
         }
 
-        public bool Add(Genre newGenre)
+        public async Task<bool> CheckGenreExists(string name)
         {
-            _context.Genres.Add(newGenre);
-            return Save();
+            return await _context.Genres
+            .AnyAsync(g => g.Name.Trim().ToLower() == name.TrimEnd().ToLower());
         }
 
-        public bool Update(int id, string name)
+        public async Task<bool> Add(Genre newGenre)
         {
-            var genreToUpdate = _context.Genres.Find(id);
+            await _context.Genres.AddAsync(newGenre);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> Update(int id, string name)
+        {
+            var genreToUpdate = await _context.Genres.FindAsync(id);
             if (genreToUpdate == null) return false;
 
             genreToUpdate.Name = name;
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            var genreToDelete = _context.Genres.Find(id);
+            var genreToDelete = await _context.Genres.FindAsync(id);
             if (genreToDelete == null) return false;
              _context.Remove(genreToDelete);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            var saved = _context.SaveChanges();
-            return saved > 0 ? true : false;
+            var saved = await _context.SaveChangesAsync();
+            return saved > 0;
         }
     }
 }

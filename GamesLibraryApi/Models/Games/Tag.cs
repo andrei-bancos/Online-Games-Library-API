@@ -2,7 +2,7 @@
 
 namespace GamesLibraryApi.Models.Games
 {
-    public class Genre
+    public class Tag
     {
         public int Id { get; set; }
         public string Name { get; set; }
