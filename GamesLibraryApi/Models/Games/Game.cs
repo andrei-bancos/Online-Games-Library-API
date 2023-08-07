@@ -17,7 +17,7 @@
         public ICollection<Genre> Genres { get; set; }
         public ICollection<Tag> Tags { get; set; }
         public ICollection<Media> Media { get; set; }
-        public ICollection<CompatibilySystem> compatibilySystems { get; set; }
+        public ICollection<CompatibilitySystem> CompatibilitySystems { get; set; }
         public ICollection<Language> Languages { get; set; }
     }
 }

@@ -28,11 +28,20 @@ namespace GamesLibraryApi.Data
                 new Tag { Name = "Fast-Paced Action" }
             };
 
-            var systems = new CompatibilySystem[]
+            var systems = new CompatibilitySystem[]
             {
-                new CompatibilySystem { Name = "Windows" },
-                new CompatibilySystem { Name = "Linux" },
-                new CompatibilySystem { Name = "macOS" }
+                new CompatibilitySystem { Name = "Windows" },
+                new CompatibilitySystem { Name = "Linux" },
+                new CompatibilitySystem { Name = "macOS" }
+            };
+
+            var languages = new Language[]
+{
+                new Language { Name = "English", Code = "en" },
+                new Language { Name = "Spanish", Code = "es" },
+                new Language { Name = "French", Code = "fr" },
+                new Language { Name = "German", Code = "de" },
+                new Language { Name = "Japanese", Code = "ja" },
             };
 
             var games = new Game[]
@@ -49,7 +58,19 @@ namespace GamesLibraryApi.Data
                     Size = 40,
                     PreRelease = false,
                     ReleaseDate = new DateTime(2015, 5, 19),
-                    Company = "CD Projekt Red"
+                    Company = "CD Projekt Red",
+                    Genres = new List<Genre> { genres[0], genres[3] },
+                    Tags = new List<Tag> { tags[1], tags[3] },
+                    CompatibilitySystems =
+                    new List<CompatibilitySystem> { systems[0], systems[1] },
+                    Languages = new List<Language> { 
+                        languages[0], 
+                        languages[1], 
+                        languages[2],
+                        languages[3], 
+                        languages[4]
+                    }
+                    
                 },
                 new Game
                 {
@@ -63,7 +84,18 @@ namespace GamesLibraryApi.Data
                     Size = 70,
                     PreRelease = false,
                     ReleaseDate = new DateTime(2013, 9, 17),
-                    Company = "Rockstar Games"
+                    Company = "Rockstar Games",
+                    Genres = new List<Genre> { genres[1], genres[2] },
+                    Tags = new List<Tag> { tags[1], tags[4] },
+                    CompatibilitySystems =
+                    new List<CompatibilitySystem> { systems[0], systems[1] },
+                    Languages = new List<Language> {
+                        languages[0],
+                        languages[1],
+                        languages[2],
+                        languages[3],
+                        languages[4]
+                    }
                 },
                 new Game
                 {
@@ -77,7 +109,18 @@ namespace GamesLibraryApi.Data
                     Size = 30,
                     PreRelease = false,
                     ReleaseDate = new DateTime(2011, 11, 11),
-                    Company = "Bethesda Game Studios"
+                    Company = "Bethesda Game Studios",
+                    Genres = new List<Genre> { genres[2], genres[4] },
+                    Tags = new List<Tag> { tags[2], tags[4] },
+                    CompatibilitySystems =
+                    new List<CompatibilitySystem> { systems[0], systems[1] },
+                    Languages = new List<Language> {
+                        languages[0],
+                        languages[1],
+                        languages[2],
+                        languages[3],
+                        languages[4]
+                    }
                 },
                 new Game
                 {
@@ -91,7 +134,18 @@ namespace GamesLibraryApi.Data
                     Size = 25,
                     PreRelease = false,
                     ReleaseDate = new DateTime(2016, 4, 12),
-                    Company = "FromSoftware"
+                    Company = "FromSoftware",
+                    Genres = new List<Genre> { genres[0], genres[1] },
+                    Tags = new List<Tag> { tags[2], tags[3] },
+                    CompatibilitySystems =
+                    new List<CompatibilitySystem> { systems[0], systems[1] },
+                    Languages = new List<Language> {
+                        languages[0],
+                        languages[1],
+                        languages[2],
+                        languages[3],
+                        languages[4]
+                    }
                 },
                 new Game
                 {
@@ -105,17 +159,19 @@ namespace GamesLibraryApi.Data
                     Size = 80,
                     PreRelease = false,
                     ReleaseDate = new DateTime(2018, 10, 26),
-                    Company = "Rockstar Games"
+                    Company = "Rockstar Games",
+                    Genres = new List<Genre> { genres[0], genres[1] },
+                    Tags = new List<Tag> { tags[0], tags[1] },
+                    CompatibilitySystems =
+                    new List<CompatibilitySystem> { systems[0], systems[1] },
+                    Languages = new List<Language> {
+                        languages[0],
+                        languages[1],
+                        languages[2],
+                        languages[3],
+                        languages[4]
+                    }
                 }
-            };
-
-            var languages = new Language[]
-            {
-                new Language { Name = "English", Code = "en" },
-                new Language { Name = "Spanish", Code = "es" },
-                new Language { Name = "French", Code = "fr" },
-                new Language { Name = "German", Code = "de" },
-                new Language { Name = "Japanese", Code = "ja" },
             };
 
             context.Genres.AddRange(genres);

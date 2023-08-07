@@ -1,14 +1,15 @@
 ﻿using GamesLibraryApi.Data;
+using GamesLibraryApi.Interfaces;
 using GamesLibraryApi.Models.Games;
 using Microsoft.EntityFrameworkCore;
 
-namespace GamesLibraryApi.Services
+namespace GamesLibraryApi.Repository
 {
-    public class TagService
+    public class TagRepository : ITagRepository
     {
         public readonly DataContext _context;
 
-        public TagService(DataContext context)
+        public TagRepository(DataContext context)
         {
             _context = context;
         }

@@ -1,14 +1,15 @@
 ﻿using GamesLibraryApi.Data;
 using GamesLibraryApi.Models.Games;
 using Microsoft.EntityFrameworkCore;
+using GamesLibraryApi.Interfaces;
 
-namespace GamesLibraryApi.Services
+namespace GamesLibraryApi.Repository
 {
-    public class GameService
+    public class GameRepository : IGameRepository
     {
         private readonly DataContext _context;
 
-        public GameService(DataContext context)
+        public GameRepository(DataContext context)
         {
             _context = context;
         }
@@ -24,7 +25,7 @@ namespace GamesLibraryApi.Services
                 .Include(g => g.Genres)
                 .Include(g => g.Tags)
                 .Include(g => g.Media)
-                .Include(g => g.compatibilySystems)
+                .Include(g => g.CompatibilitySystems)
                 .Include(g => g.Languages)
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
@@ -67,13 +68,13 @@ namespace GamesLibraryApi.Services
 
         public async Task<bool> AddSystemToGame(int gameId, int systemId)
         {
-            var game = await _context.Games.Include(g => g.compatibilySystems)
+            var game = await _context.Games.Include(g => g.CompatibilitySystems)
                         .FirstOrDefaultAsync(g => g.Id == gameId);
             var system = await _context.CompatibilySystems.FindAsync(systemId);
 
             if (game == null || system == null) return false;
 
-            game.compatibilySystems.Add(system);
+            game.CompatibilitySystems.Add(system);
             return await SaveAsync();
         }
 
@@ -111,13 +112,13 @@ namespace GamesLibraryApi.Services
 
         public async Task<bool> DeleteSystem(int gameId, int systemId)
         {
-            var game = await _context.Games.Include(g => g.compatibilySystems)
+            var game = await _context.Games.Include(g => g.CompatibilitySystems)
                         .FirstOrDefaultAsync(g => g.Id == gameId);
             var system = await _context.CompatibilySystems.FindAsync(systemId);
 
             if (game == null || system == null) { return false; }
 
-            game.compatibilySystems.Remove(system);
+            game.CompatibilitySystems.Remove(system);
             return await SaveAsync();
         }
 

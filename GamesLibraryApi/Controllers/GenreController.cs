@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using GamesLibraryApi.Dto;
+using GamesLibraryApi.Interfaces;
 using GamesLibraryApi.Models.Games;
-using GamesLibraryApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -12,16 +12,19 @@ namespace GamesLibraryApi.Controllers
     [ApiController]
     public class GenreController : ControllerBase
     {
-        private readonly GenreService _service;
+        private readonly IGenreRepository _service;
         private readonly IMapper _mapper;
 
-        public GenreController(GenreService service, IMapper mapper)
+        public GenreController(IGenreRepository service, IMapper mapper)
         {
             _service = service;
             _mapper = mapper;
         }
 
         // GET: api/<GenreController>
+        /// <summary>
+        ///     Return all genres
+        /// </summary>
         [HttpGet]
         [ProducesResponseType(200, Type=typeof(IEnumerable<GenreDto>))]
         public async Task<IActionResult> GetAll()
@@ -31,6 +34,9 @@ namespace GamesLibraryApi.Controllers
         }
 
         // GET api/<GenreController>/5
+        /// <summary>
+        ///     Return a genre using genreId
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<GenreDto>> GetById(int id)
         {
@@ -39,8 +45,11 @@ namespace GamesLibraryApi.Controllers
             return Ok(genre);
         }
 
-        // POST api/<GenreController>/add
-        [HttpPost("add/")]
+        // POST api/<GenreController>
+        /// <summary>
+        ///     Add a new genre
+        /// </summary>
+        [HttpPost]
         public async Task<IActionResult> AddNewGenre([FromBody] GenreDto newGenre)
         {
             var checkGenre = await _service.CheckGenreExists(newGenre.Name);
@@ -51,17 +60,18 @@ namespace GamesLibraryApi.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            if(!ModelState.IsValid) return BadRequest(ModelState);
-
             var genreMap = _mapper.Map<Genre>(newGenre);
 
-            if(!await _service.Add(genreMap)) return BadRequest(ModelState);
+            if(!await _service.Add(genreMap)) return StatusCode(500);
 
             return CreatedAtAction(nameof(GetById), new { id = genreMap!.Id }, genreMap);
         }
 
-        // PUT api/<GenreController>/edit/5
-        [HttpPut("edit/{id}")]
+        // PUT api/<GenreController>/5
+        /// <summary>
+        ///     Edit a genre using genreId
+        /// </summary>
+        [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, string name)
         {
             var genreToUpdate = await _service.GetById(id);
@@ -75,17 +85,20 @@ namespace GamesLibraryApi.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            if (!await _service.Update(id, name)) return BadRequest(ModelState);
+            if (!await _service.Update(id, name)) return StatusCode(500);
             return Ok("Genre has been changed.");
         }
 
-        // DELETE api/<GenreController>/delete/5
-        [HttpDelete("delete/{id}")]
+        // DELETE api/<GenreController>/5
+        /// <summary>
+        ///     Delete a genre using genreId
+        /// </summary>
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var genre = await _service.GetById(id);
             if (genre == null) return NotFound();
-            if(!await _service.Delete(id)) return BadRequest(ModelState);
+            if(!await _service.Delete(id)) return StatusCode(500);
             return Ok("Genre genre has deleted!");
         }
     }

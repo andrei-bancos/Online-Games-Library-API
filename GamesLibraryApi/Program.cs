@@ -1,7 +1,9 @@
 using GamesLibraryApi.Data;
-using GamesLibraryApi.Services;
+using GamesLibraryApi.Interfaces;
+using GamesLibraryApi.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,14 +22,17 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc(
         "v1", new OpenApiInfo { Title = "GamesLibrary Api", Version = "v1" }
     );
+
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<DataContext>(options => options.UseInMemoryDatabase("database"));
 
-builder.Services.AddScoped<GameService>();
-builder.Services.AddScoped<GenreService>();
-builder.Services.AddScoped<TagService>();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
 
 var app = builder.Build();
 
