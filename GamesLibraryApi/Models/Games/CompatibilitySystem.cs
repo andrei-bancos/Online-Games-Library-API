@@ -2,7 +2,7 @@
 
 namespace GamesLibraryApi.Models.Games
 {
-    public class CompatibilySystem
+    public class CompatibilitySystem
     {
         public int Id { get; set; }
         public string Name { get; set; }

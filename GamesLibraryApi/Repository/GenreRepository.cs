@@ -1,14 +1,15 @@
 ﻿using GamesLibraryApi.Data;
+using GamesLibraryApi.Interfaces;
 using GamesLibraryApi.Models.Games;
 using Microsoft.EntityFrameworkCore;
 
-namespace GamesLibraryApi.Services
+namespace GamesLibraryApi.Repository
 {
-    public class GenreService
+    public class GenreRepository : IGenreRepository
     {
         private readonly DataContext _context;
 
-        public GenreService(DataContext context)
+        public GenreRepository(DataContext context)
         {
             _context = context;
         }
@@ -18,9 +19,9 @@ namespace GamesLibraryApi.Services
             return await _context.Genres.AsNoTracking().ToListAsync();
         }
 
-        public Task<Genre?> GetById(int id)
+        public async Task<Genre?> GetById(int id)
         {
-            return _context.Genres.SingleOrDefaultAsync(g => g.Id == id);
+            return await _context.Genres.SingleOrDefaultAsync(g => g.Id == id);
         }
 
         public async Task<bool> CheckGenreExists(string name)

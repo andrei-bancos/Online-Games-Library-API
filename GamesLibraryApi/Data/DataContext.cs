@@ -12,8 +12,8 @@ namespace GamesLibraryApi.Data
         public DbSet<Genre> Genres => Set<Genre>();
         public DbSet<Tag> Tags => Set<Tag>();
         public DbSet<Media> Media => Set<Media>();
-        public DbSet<CompatibilySystem> CompatibilySystems 
-            => Set<CompatibilySystem>();
+        public DbSet<CompatibilitySystem> CompatibilySystems 
+            => Set<CompatibilitySystem>();
         public DbSet<Language> Languages => Set<Language>();
 
 
@@ -33,7 +33,7 @@ namespace GamesLibraryApi.Data
 
             // many to many Game <-> CompatibilySystem
             modelBuilder.Entity<Game>()
-                .HasMany(g => g.compatibilySystems)
+                .HasMany(g => g.CompatibilitySystems)
                 .WithMany(g => g.Games)
                 .UsingEntity("GameOS");
 
