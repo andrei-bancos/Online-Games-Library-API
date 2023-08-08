@@ -1,4 +1,7 @@
-﻿namespace GamesLibraryApi.Models.Games
+﻿using GamesLibraryApi.Models.Users;
+using System.Text.Json.Serialization;
+
+namespace GamesLibraryApi.Models.Games
 {
     public class Game
     {
@@ -19,5 +22,7 @@
         public ICollection<Media> Media { get; set; }
         public ICollection<CompatibilitySystem> CompatibilitySystems { get; set; }
         public ICollection<Language> Languages { get; set; }
+        [JsonIgnore]
+        public ICollection<UserGamePurchase> UserGamePurchases { get; set; }
     }
 }

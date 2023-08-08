@@ -1,4 +1,5 @@
 ﻿using GamesLibraryApi.Models.Games;
+using GamesLibraryApi.Models.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace GamesLibraryApi.Data
@@ -15,6 +16,9 @@ namespace GamesLibraryApi.Data
         public DbSet<CompatibilitySystem> CompatibilySystems 
             => Set<CompatibilitySystem>();
         public DbSet<Language> Languages => Set<Language>();
+        public DbSet<User> Users => Set<User>();
+        public DbSet<UserGamePurchase> UserGamePurchases 
+            => Set<UserGamePurchase>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,6 +46,19 @@ namespace GamesLibraryApi.Data
                 .HasMany(g => g.Languages)
                 .WithMany(g => g.Games)
                 .UsingEntity("GameLang");
+
+            modelBuilder.Entity<UserGamePurchase>()
+                .HasKey(ugp => new { ugp.UserId, ugp.GameId });
+
+            modelBuilder.Entity<UserGamePurchase>()
+                .HasOne(ugp => ugp.User)
+                .WithMany(u => u.UserGamePurchases)
+                .HasForeignKey(ugp => ugp.UserId);
+
+            modelBuilder.Entity<UserGamePurchase>()
+                .HasOne(ugp => ugp.Game)
+                .WithMany(g => g.UserGamePurchases)
+                .HasForeignKey(ugp => ugp.GameId);
         }
     }
 }
