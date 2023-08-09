@@ -3,6 +3,7 @@ using GamesLibraryApi.Dto;
 using GamesLibraryApi.Models.Games;
 using GamesLibraryApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,6 +11,7 @@ namespace GamesLibraryApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class GameController : ControllerBase
     {
         private readonly IGameRepository _service;
@@ -26,6 +28,7 @@ namespace GamesLibraryApi.Controllers
         ///     Returns all games with basic information
         /// </summary>
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<GameDto>))]
         public async Task<IActionResult> GetAll()
         {
@@ -39,6 +42,7 @@ namespace GamesLibraryApi.Controllers
         ///     Return all informations about a game using gameId
         /// </summary>
         [HttpGet("{gameId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Game>> GetById(int gameId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
@@ -51,6 +55,7 @@ namespace GamesLibraryApi.Controllers
         ///     Get all media using a game id
         /// </summary>
         [HttpGet("{gameId}/media/")]
+        [AllowAnonymous]
         public async Task<ActionResult> GetMediaByGameId(int gameId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);

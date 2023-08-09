@@ -28,7 +28,9 @@ namespace GamesLibraryApi.Repository
 
         public async Task<User?> GetById(int id)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            return await _context.Users
+                .Include(u => u.UserGamePurchases).AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<bool> Add(User user)
@@ -56,10 +58,11 @@ namespace GamesLibraryApi.Repository
             return new OkObjectResult(jwt);
         }
 
-        public string CreateToken(User user)
+        private string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim>()
             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString(), ClaimValueTypes.Integer32),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
@@ -80,7 +83,24 @@ namespace GamesLibraryApi.Repository
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
             return jwt;
+        }
 
+        public async Task<bool> AddGameToUser(int userId, int gameId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            var game = await _context.Games.FindAsync(gameId);
+
+            if (user == null || game == null) return false;
+
+            var gamePurchase = new UserGamePurchase
+            {
+                UserId = userId,
+                GameId = gameId,
+                PurchasePrice = game.Price,
+            };
+
+            _context.UserGamePurchases.Add(gamePurchase);
+            return await SaveAsync();
         }
 
         public async Task<bool> CheckUsernameExists(string username)

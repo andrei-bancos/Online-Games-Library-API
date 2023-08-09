@@ -1,4 +1,6 @@
-﻿using GamesLibraryApi.Models.Games;
+﻿using GamesLibraryApi.Dto;
+using GamesLibraryApi.Models.Games;
+using GamesLibraryApi.Models.Users;
 
 namespace GamesLibraryApi.Data
 {
@@ -174,11 +176,35 @@ namespace GamesLibraryApi.Data
                 }
             };
 
+            var admin = new User
+            {
+                Username = "andrei",
+                Email = "bancos.andrei.2002@gmail.com",
+                Password = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                Role = "Admin",
+                Birthday = DateTime.Now,
+                Gender = "Male",
+                CreatedAt = DateTime.Now
+            };
+
+            var user = new User
+            {
+                Username = "dorel",
+                Email = "dorel@test.com",
+                Password = BCrypt.Net.BCrypt.HashPassword("user123"),
+                Role = "User",
+                Birthday = DateTime.Now,
+                Gender = "Male",
+                CreatedAt = DateTime.Now
+            };
+
             context.Genres.AddRange(genres);
             context.Tags.AddRange(tags);
             context.CompatibilySystems.AddRange(systems);
             context.Languages.AddRange(languages);
             context.Games.AddRange(games);
+            context.Users.Add(admin);
+            context.Users.Add(user);
             context.SaveChanges();
         }
     }
