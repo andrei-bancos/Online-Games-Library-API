@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace GamesLibraryApi.Models.Users
+﻿namespace GamesLibraryApi.Models.Users
 {
     public class User
     {
@@ -8,7 +6,9 @@ namespace GamesLibraryApi.Models.Users
         public string Username { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Role { get; set; } = "user";
+        public string Role { get; set; } = "User";
+        public DateTime Birthday { get; set; }
+        public string Gender { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public ICollection<UserGamePurchase> UserGamePurchases { get; set; }
     }

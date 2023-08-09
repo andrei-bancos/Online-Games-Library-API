@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GamesLibraryApi.Dto
+namespace GamesLibraryApi.Dto.Users
 {
     public class LoginDto
     {

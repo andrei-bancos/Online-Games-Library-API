@@ -3,11 +3,13 @@ using GamesLibraryApi.Dto;
 using GamesLibraryApi.Models.Games;
 using GamesLibraryApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GamesLibraryApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class TagController : ControllerBase
     {
         private readonly ITagRepository _service;

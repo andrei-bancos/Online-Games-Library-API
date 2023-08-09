@@ -2,6 +2,7 @@
 using GamesLibraryApi.Dto;
 using GamesLibraryApi.Interfaces;
 using GamesLibraryApi.Models.Games;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,6 +11,7 @@ namespace GamesLibraryApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class GenreController : ControllerBase
     {
         private readonly IGenreRepository _service;

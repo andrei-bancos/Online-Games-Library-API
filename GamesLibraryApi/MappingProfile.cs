@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GamesLibraryApi.Dto;
+using GamesLibraryApi.Dto.Users;
 using GamesLibraryApi.Models.Games;
 using GamesLibraryApi.Models.Users;
 
@@ -18,7 +19,9 @@ namespace GamesLibraryApi
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
             CreateMap<ShowUserDto, User>();
+            CreateMap<User, ShowUsersDto>();
             CreateMap<User, ShowUserDto>();
+            CreateMap<UserGamePurchase, UserGamePurchaseDto>();
         }
     }
 }

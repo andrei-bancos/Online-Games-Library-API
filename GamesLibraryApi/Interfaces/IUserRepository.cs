@@ -9,7 +9,7 @@ namespace GamesLibraryApi.Interfaces
         Task<User?> GetById(int id);
         Task<bool> Add(User user);
         Task<IActionResult> Login(string email, string password);
-        string CreateToken(User user);
+        Task<bool> AddGameToUser(int userId, int gameId);
         Task<bool> CheckUsernameExists(string username);
         Task<bool> UpdateUsername(int id, string username);
         Task<bool> UpdatePassword(int id, string password);
