@@ -78,6 +78,12 @@ namespace GamesLibraryApi.Repository
             return await SaveAsync();
         }
 
+        public async Task<CompatibilitySystem?> GetSystemById(int id)
+        {
+            var system = await _context.CompatibilySystems.FindAsync(id);
+            return system;
+        }
+
         public async Task<bool> AddLanguageToGame(int gameId, int langId)
         {
             var game = await _context.Games.Include(g => g.Languages)
@@ -88,6 +94,12 @@ namespace GamesLibraryApi.Repository
 
             game.Languages.Add(lang);
             return await SaveAsync();
+        }
+
+        public async Task<Language?> GetLangById(int id)
+        {
+            var lang = await _context.Languages.FindAsync(id);
+            return lang;
         }
 
         public async Task<bool> DeleteGame(int id)
@@ -104,9 +116,21 @@ namespace GamesLibraryApi.Repository
                         .FirstOrDefaultAsync(g => g.Id == gameId);
             var genre = await _context.Genres.FindAsync(genreId);
 
-            if(game == null || genre == null) { return false; }
+            if(game == null || genre == null) return false;
 
             game.Genres.Remove(genre);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> DeleteTag(int gameId, int tagId)
+        {
+            var game = await _context.Games.Include(g => g.Tags)
+                        .FirstOrDefaultAsync(g => g.Id == gameId);
+            var tag = await _context.Tags.FindAsync(tagId);
+
+            if (game == null || tag == null) return false;
+
+            game.Tags.Remove(tag);
             return await SaveAsync();
         }
 

@@ -27,24 +27,27 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Return all genres
         /// </summary>
-        [HttpGet]
+        [HttpGet, AllowAnonymous]
         [ProducesResponseType(200, Type=typeof(IEnumerable<GenreDto>))]
         public async Task<IActionResult> GetAll()
         {
-            var genres = _mapper.Map<List<GenreDto>>(await _service.GetGenres());
-            return Ok(genres);
+            var genres = await _service.GetGenres();
+            var genresMap = _mapper.Map<List<GenreDto>>(genres);
+            return Ok(genresMap);
         }
 
         // GET api/<GenreController>/5
         /// <summary>
         ///     Return a genre using genreId
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), AllowAnonymous]
         public async Task<ActionResult<GenreDto>> GetById(int id)
         {
-            var genre = _mapper.Map<GenreDto>(await _service.GetById(id));
+            var genre = await _service.GetById(id);
             if(genre == null) return NotFound();
-            return Ok(genre);
+
+            var genreMap = _mapper.Map<GenreDto>(genre);
+            return Ok(genreMap);
         }
 
         // POST api/<GenreController>
@@ -64,7 +67,8 @@ namespace GamesLibraryApi.Controllers
 
             var genreMap = _mapper.Map<Genre>(newGenre);
 
-            if(!await _service.Add(genreMap)) return StatusCode(500);
+            bool addGenre = await _service.Add(genreMap);
+            if (!addGenre) return StatusCode(500);
 
             return CreatedAtAction(nameof(GetById), new { id = genreMap!.Id }, genreMap);
         }
@@ -87,7 +91,8 @@ namespace GamesLibraryApi.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            if (!await _service.Update(id, name)) return StatusCode(500);
+            bool genreUpdate = await _service.Update(id, name);
+            if (!genreUpdate) return StatusCode(500);
             return Ok("Genre has been changed.");
         }
 
@@ -100,7 +105,9 @@ namespace GamesLibraryApi.Controllers
         {
             var genre = await _service.GetById(id);
             if (genre == null) return NotFound();
-            if(!await _service.Delete(id)) return StatusCode(500);
+
+            bool deleteGenre = await _service.Delete(id);
+            if (!deleteGenre) return StatusCode(500);
             return Ok("Genre genre has deleted!");
         }
     }
