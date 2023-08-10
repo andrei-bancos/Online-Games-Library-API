@@ -63,6 +63,18 @@ namespace GamesLibraryApi.Data
                     Company = "CD Projekt Red",
                     Genres = new List<Genre> { genres[0], genres[3] },
                     Tags = new List<Tag> { tags[1], tags[3] },
+                    Media = new List<Media>
+                    {
+                        new Media { 
+                            Type = "image", 
+                            Url = "https://cdn-s-thewitcher.cdprojektred.com/witcher3/backgrounds/comparison-novigrad-after-en@1x.jpg" 
+                        },
+                        new Media
+                        {
+                            Type = "video",
+                            Url = "https://www.youtube.com/watch?v=nBT2SP21f3Q"
+                        }
+                    },
                     CompatibilitySystems =
                     new List<CompatibilitySystem> { systems[0], systems[1] },
                     Languages = new List<Language> { 
@@ -89,6 +101,18 @@ namespace GamesLibraryApi.Data
                     Company = "Rockstar Games",
                     Genres = new List<Genre> { genres[1], genres[2] },
                     Tags = new List<Tag> { tags[1], tags[4] },
+                    Media = new List<Media>
+                    {
+                        new Media {
+                            Type = "image",
+                            Url = "https://media-rockstargames-com.akamaized.net/tina-uploads/tina-modules/6937/4ff07bc5a78d5de03deb1bd10cdc94ea0ab1a4eb.png"
+                        },
+                        new Media
+                        {
+                            Type = "video",
+                            Url = "https://videos-rockstargames-com.akamaized.net/v3/V-4193e6444906a81da7fc1a4e85eb99c290dc4b2681ef4ffa55-en_us-1080p.mp4"
+                        }
+                    },
                     CompatibilitySystems =
                     new List<CompatibilitySystem> { systems[0], systems[1] },
                     Languages = new List<Language> {
@@ -114,6 +138,18 @@ namespace GamesLibraryApi.Data
                     Company = "Bethesda Game Studios",
                     Genres = new List<Genre> { genres[2], genres[4] },
                     Tags = new List<Tag> { tags[2], tags[4] },
+                    Media = new List<Media>
+                    {
+                        new Media {
+                            Type = "image",
+                            Url = "https://images.ctfassets.net/rporu91m20dc/4i01HtT8mIECcSsAo2QqiK/e61e0111cfe919d66949877994d4661d/skyrim-overview-media--riverwood.jpg?q=70&&&fm=webp"
+                        },
+                        new Media
+                        {
+                            Type = "video",
+                            Url = "https://www.youtube.com/watch?v=QT1httL_ZNc"
+                        }
+                    },
                     CompatibilitySystems =
                     new List<CompatibilitySystem> { systems[0], systems[1] },
                     Languages = new List<Language> {
@@ -139,6 +175,18 @@ namespace GamesLibraryApi.Data
                     Company = "FromSoftware",
                     Genres = new List<Genre> { genres[0], genres[1] },
                     Tags = new List<Tag> { tags[2], tags[3] },
+                    Media = new List<Media>
+                    {
+                        new Media {
+                            Type = "image",
+                            Url = "https://p325k7wa.twic.pics/high/dark-souls/dark-souls-3/00-page-setup/ds3_banner.jpg?twic=v1/resize=1900/step=10/quality=80"
+                        },
+                        new Media
+                        {
+                            Type = "video",
+                            Url = "https://www.youtube.com/watch?v=-NHG1-wlUh4"
+                        }
+                    },
                     CompatibilitySystems =
                     new List<CompatibilitySystem> { systems[0], systems[1] },
                     Languages = new List<Language> {
@@ -164,6 +212,18 @@ namespace GamesLibraryApi.Data
                     Company = "Rockstar Games",
                     Genres = new List<Genre> { genres[0], genres[1] },
                     Tags = new List<Tag> { tags[0], tags[1] },
+                    Media = new List<Media>
+                    {
+                        new Media {
+                            Type = "image",
+                            Url = "https://www.rockstargames.com/reddeadredemption2/dist/img/en_us/home/f4cb1c5406470fdb7765ff50a604b84a.jpg"
+                        },
+                        new Media
+                        {
+                            Type = "video",
+                            Url = "https://videos-rockstargames-com.akamaized.net/v3/reddeadredemption2-halloweenpass2-en_us-1080p.mp4"
+                        }
+                    },
                     CompatibilitySystems =
                     new List<CompatibilitySystem> { systems[0], systems[1] },
                     Languages = new List<Language> {

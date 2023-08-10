@@ -47,6 +47,7 @@ namespace GamesLibraryApi.Data
                 .WithMany(g => g.Games)
                 .UsingEntity("GameLang");
 
+            // many to many Game <-> Ugp <-> User
             modelBuilder.Entity<UserGamePurchase>()
                 .HasKey(ugp => new { ugp.UserId, ugp.GameId });
 

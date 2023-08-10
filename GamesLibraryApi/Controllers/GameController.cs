@@ -15,12 +15,17 @@ namespace GamesLibraryApi.Controllers
     public class GameController : ControllerBase
     {
         private readonly IGameRepository _service;
+        private readonly IGenreRepository _serviceGenre;
+        private readonly ITagRepository _serviceTag;
         private readonly IMapper _mapper;
 
-        public GameController(IGameRepository service, IMapper mapper)
+        public GameController(IGameRepository service, IMapper mapper, 
+            IGenreRepository serviceGenre, ITagRepository serviceTag)
         {
             _service = service;
             _mapper = mapper;
+            _serviceGenre = serviceGenre;
+            _serviceTag = serviceTag;
         }
 
         // GET: api/<GameController>
@@ -61,7 +66,8 @@ namespace GamesLibraryApi.Controllers
             var game = await _service.GetById(gameId).ConfigureAwait(false);
             if (game == null) return NotFound();
             ICollection<Media> media = await _service.GetMediaByGameId(gameId);
-            return Ok(media);
+            var mediaMap = _mapper.Map<ICollection<MediaDto>>(media);
+            return Ok(mediaMap);
         }
 
         // POST api/<GameController>/add
@@ -71,7 +77,7 @@ namespace GamesLibraryApi.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNewGame(GameDto newGame)
         {
-            bool gameExists = await _service.CheckGameExists(newGame.Name)
+            bool gameExists = await _service.CheckGameExists(newGame.Name!)
                                             .ConfigureAwait(false);
             if (gameExists)
             {
@@ -81,7 +87,8 @@ namespace GamesLibraryApi.Controllers
 
             var gameMap = _mapper.Map<Game>(newGame);
 
-            if(!await _service.Add(gameMap)) return StatusCode(500);
+            bool addGame = await _service.Add(gameMap);
+            if (!addGame) return StatusCode(500);
             return CreatedAtAction(
                 nameof(GetById), new { gameId = gameMap!.Id }, gameMap);
         }
@@ -93,8 +100,19 @@ namespace GamesLibraryApi.Controllers
         [HttpPost("{gameId}/genre/{genreId}")]
         public async Task<IActionResult> AddGenreToGame(int gameId, int genreId)
         {
-            if(!await _service.AddGenreToGame(gameId, genreId))
-                return StatusCode(500);
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var genre = await _serviceGenre.GetById(genreId)
+                .ConfigureAwait(false);
+            if (genre == null) return NotFound("Genre not found.");
+
+            bool genreAlreadyAdded = game.Genres.Any(g => g.Id == genreId);
+            if (genreAlreadyAdded) return BadRequest("Genre already added.");
+
+            bool addGenreToGame = await _service
+                .AddGenreToGame(gameId, genreId);
+            if (!addGenreToGame) return StatusCode(500);
             return Ok("Genre has been added to game.");
         }
 
@@ -105,8 +123,17 @@ namespace GamesLibraryApi.Controllers
         [HttpPost("{gameId}/tag/{tagId}")]
         public async Task<IActionResult> AddTagToGame(int gameId, int tagId)
         {
-            if (!await _service.AddTagToGame(gameId, tagId))
-                return StatusCode(500);
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var tag = await _serviceTag.GetById(tagId).ConfigureAwait(false);
+            if (tag == null) return NotFound("Tag not found.");
+
+            bool tagAlreadyAdded = game.Tags.Any(t => t.Id == tagId);
+            if (tagAlreadyAdded) return BadRequest("Tag already added.");
+
+            bool addTagToGame = await _service.AddTagToGame(gameId, tagId);
+            if (!addTagToGame) return StatusCode(500);
             return Ok("Tag has been added to game.");
         }
 
@@ -115,9 +142,13 @@ namespace GamesLibraryApi.Controllers
         ///     Add media using gameId
         /// </summary>
         [HttpPost("{gameId}/media")]
-        public async Task<IActionResult> AddMediaToGame(int gameId, Media media)
+        public async Task<IActionResult> AddMediaToGame(int gameId, MediaDto mediaDto)
         {
-            var checkMedia = await _service.CheckMediaExists(media.Url);
+            var game = await _service.GetById(gameId);
+            var mediaMap = _mapper.Map<Media>(mediaDto);
+            var checkMedia = await _service.CheckMediaExists(mediaMap.Url!);
+
+            if(game == null) return NotFound("Game not found.");
 
             if (checkMedia)
             {
@@ -125,8 +156,8 @@ namespace GamesLibraryApi.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            if (!await _service.AddMedia(gameId, media)) 
-                return StatusCode(500);
+            bool addMediaToGame = await _service.AddMedia(gameId, mediaMap);
+            if (!addMediaToGame) return StatusCode(500);
             return Ok("Media has been added");
         }
 
@@ -137,8 +168,19 @@ namespace GamesLibraryApi.Controllers
         [HttpPost("{gameId}/system/{systemId}")]
         public async Task<IActionResult> AddSystemToGame(int gameId, int systemId)
         {
-            if (!await _service.AddSystemToGame(gameId, systemId)) 
-                return StatusCode(500);
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var system = await _service.GetSystemById(systemId);
+            if (system == null) return NotFound("System not found.");
+            
+            bool sysAlreadyAdded = game.CompatibilitySystems
+                .Any(sys => sys.Id == systemId);
+
+            if (sysAlreadyAdded) return BadRequest("System already added.");
+
+            bool addSystemToGame = await _service.AddSystemToGame(gameId, systemId);
+            if (!addSystemToGame) return StatusCode(500);
             return Ok("System has been added to game");
         }
 
@@ -147,10 +189,21 @@ namespace GamesLibraryApi.Controllers
         ///     Add a language to a game using gameId and langId
         /// </summary>
         [HttpPost("{gameId}/language/{langId}")]
-        public async Task<IActionResult> AddLanguageToGame(int gameId, int langId)
+        public async Task<IActionResult> AddLanguageToGame
+            (int gameId, int langId)
         {
-            if (!await _service.AddLanguageToGame(gameId, langId))
-                return StatusCode(500);
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var lang = await _service.GetLangById(langId).ConfigureAwait(false);
+            if (lang == null) return NotFound("Language not found.");
+
+            var langAlreadyAdded = game.Languages.Any(l => l.Id == langId);
+            if (langAlreadyAdded) return BadRequest("Language already added.");
+
+            bool addLanguageToGame = await _service
+                .AddLanguageToGame(gameId, langId);
+            if (!addLanguageToGame) return StatusCode(500);
             return Ok("Language has been added to game");
         }
 
@@ -163,7 +216,9 @@ namespace GamesLibraryApi.Controllers
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
             if (game == null) return NotFound();
-            if (!await _service.DeleteGame(gameId)) return StatusCode(500);
+
+            bool deleteGame = await _service.DeleteGame(gameId);
+            if (!deleteGame) return StatusCode(500);
             return Ok("Game has been deleted");
         }
 
@@ -174,9 +229,40 @@ namespace GamesLibraryApi.Controllers
         [HttpDelete("{gameId}/genre/{genreId}")]
         public async Task<IActionResult> DeleteGenre(int gameId, int genreId)
         {
-            if(!await _service.DeleteGenre(gameId, genreId)) 
-                return StatusCode(500);
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var genre = await _serviceGenre.GetById(genreId)
+                .ConfigureAwait(false);
+            if (genre == null) return NotFound("Genre not found.");
+
+            var isAdded = game.Genres.Any(g => g.Id == genreId);
+            if (!isAdded) return BadRequest("Genre is not added.");
+
+            bool deleteGenre = await _service.DeleteGenre(gameId, genreId);
+            if (!deleteGenre) return StatusCode(500);
             return Ok("Genre has been deleted");
+        }
+
+        // DELETE api/<GameController>/{gameId}/tag/{genreId}
+        /// <summary>
+        ///     Delete a genre using gameId and genreId
+        /// </summary>
+        [HttpDelete("{gameId}/tag/{tagId}")]
+        public async Task<IActionResult> DeleteTag(int gameId, int tagId)
+        {
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var tag = await _serviceTag.GetById(tagId).ConfigureAwait(false);
+            if (tag == null) return NotFound("Tag not found.");
+
+            var isAdded = game.Tags.Any(t => t.Id == tagId);
+            if (!isAdded) return BadRequest("Tag is not added.");
+
+            bool deleteTag = await _service.DeleteTag(gameId, tagId);
+            if (!deleteTag) return StatusCode(500);
+            return Ok("Tag has been deleted");
         }
 
         // DELETE api/media/{mediaId}
@@ -188,7 +274,9 @@ namespace GamesLibraryApi.Controllers
         {
             var media = await _service.GetMediaById(mediaId).ConfigureAwait(false);
             if (media == null) return NotFound();
-            if (!await _service.DeleteMedia(media)) return StatusCode(500);
+
+            bool deleteMedia = await _service.DeleteMedia(media);
+            if (!deleteMedia) return StatusCode(500);
             return Ok("Media has been deleted");
         }
 
@@ -199,8 +287,18 @@ namespace GamesLibraryApi.Controllers
         [HttpDelete("{gameId}/system/{systemId}")]
         public async Task<IActionResult> DeleteSystem(int gameId, int systemId)
         {
-            if (!await _service.DeleteSystem(gameId, systemId))
-                return StatusCode(500);
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var sys = await _service.GetSystemById(systemId)
+                .ConfigureAwait(false);
+            if (sys == null) return NotFound("System not found.");
+
+            var isAdded = game.CompatibilitySystems.Any(s => s.Id == systemId);
+            if (!isAdded) return BadRequest("System is not added.");
+
+            bool deleteSystem = await _service.DeleteSystem(gameId, systemId);
+            if (!deleteSystem) return StatusCode(500);
             return Ok("System has been deleted");
         }
 
@@ -211,8 +309,17 @@ namespace GamesLibraryApi.Controllers
         [HttpDelete("{gameId}/language/{langId}")]
         public async Task<IActionResult> DeleteLanguage(int gameId, int langId)
         {
-            if (!await _service.DeleteLang(gameId, langId))
-                return StatusCode(500);
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var lang = await _service.GetLangById(langId).ConfigureAwait(false);
+            if (lang == null) return NotFound("Language not found.");
+
+            var isAdded = game.Languages.Any(l => l.Id == langId);
+            if (!isAdded) return BadRequest("Language is not added.");
+
+            bool deleteLang = await _service.DeleteLang(gameId, langId);
+            if (!deleteLang) return StatusCode(500);
             return Ok("Language has been deleted");
         }
     }

@@ -25,25 +25,28 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Return all tags
         /// </summary>
-        [HttpGet]
+        [HttpGet, AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(TagDto))]
         public async Task<IActionResult> GetAll()
         {
-            var tags = _mapper.Map<List<TagDto>>(await _service.GetTags());
-            return Ok(tags);
+            var tags = await _service.GetTags();
+            var tagsMap = _mapper.Map<List<TagDto>>(tags);
+            return Ok(tagsMap);
         }
 
         // GET api/<GenreController>/5
         /// <summary>
         ///     Return a tag using tagId
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), AllowAnonymous]
         [ProducesResponseType(200, Type=typeof(TagDto))]
         public async Task<IActionResult> GetById(int id)
         {
-            var tag = _mapper.Map<TagDto>(await _service.GetById(id));
+            var tag = await _service.GetById(id);
             if(tag == null) return NotFound();
-            return Ok(tag);
+
+            var tagMap = _mapper.Map<TagDto>(await _service.GetById(id));
+            return Ok(tagMap);
         }
 
         // POST api/<GenreController>
@@ -63,7 +66,8 @@ namespace GamesLibraryApi.Controllers
 
             var newTagMap = _mapper.Map<Tag>(newTag);
 
-            if (!await _service.Add(newTagMap)) return StatusCode(500);
+            bool addTag = await _service.Add(newTagMap);
+            if (!addTag) return StatusCode(500);
 
             return CreatedAtAction(nameof(GetById), new { id =  newTagMap!.Id }, newTagMap);
         }
@@ -86,7 +90,8 @@ namespace GamesLibraryApi.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            if(!await _service.Update(id, name)) return StatusCode(500);
+            bool updateTag = await _service.Update(id, name);
+            if (!updateTag) return StatusCode(500);
             return Ok("Tag has been updated.");
         }
 
@@ -99,7 +104,9 @@ namespace GamesLibraryApi.Controllers
         {
             var tag = await _service.GetById(id);
             if(tag == null) return NotFound();
-            if(!await _service.Delete(id)) return StatusCode(500);
+
+            bool deleteTag = await _service.Delete(id);
+            if (!deleteTag) return StatusCode(500);
             return Ok("Tag has been deleted");
         }
     }

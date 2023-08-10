@@ -5,7 +5,6 @@ using GamesLibraryApi.Models.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Security.Claims;
 
 namespace GamesLibraryApi.Controllers
@@ -40,13 +39,15 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Return user and games owned.
         /// </summary>
-        [HttpGet("{userId}"), Authorize(Roles = "Admin")]
+        [HttpGet("{userId}"), Authorize]
         public async Task<ActionResult<ShowUserDto>> GetUserById(int userId)
         {
             var user = await _service.GetById(userId);
             if (user == null) return NotFound();
+
             var userMap = _mapper.Map<ShowUserDto>(user);
             userMap.GamePurchases = _mapper.Map<ICollection<UserGamePurchaseDto>>(user.UserGamePurchases);
+
             return Ok(userMap);
         }
 
@@ -78,7 +79,10 @@ namespace GamesLibraryApi.Controllers
             }
 
             var userMap = _mapper.Map<User>(user);
-            if (!await _service.Add(userMap)) return StatusCode(500);
+
+            bool addUser = await _service.Add(userMap);
+            if (!addUser) return StatusCode(500);
+
             return Ok("User has been created.");
         }
 
@@ -93,7 +97,9 @@ namespace GamesLibraryApi.Controllers
             return Ok(userLogin);
         }
 
-
+        /// <summary>
+        ///     Add game to user using userId and gameId
+        /// </summary>
         [HttpPost("{userId}/game/{gameId}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddGameToUser(int userId, int gameId)
         {
@@ -103,12 +109,17 @@ namespace GamesLibraryApi.Controllers
             if (user == null) return NotFound("User not found.");
             if (game == null) return NotFound("Game not found.");
 
-            if (!await _service.AddGameToUser(userId, gameId)) return StatusCode(500);
+            bool UserOwnGame = user.UserGamePurchases.Any(g => g.GameId == gameId);
+            if (UserOwnGame) return BadRequest("User already own this game.");
+
+            bool addGameToUser = await _service.AddGameToUser(userId, gameId);
+            if (!addGameToUser) return StatusCode(500);
+
             return Ok("Game has been added to user.");
         }
 
         /// <summary>
-        ///     Change username using newUsername
+        ///     Change your username using newUsername
         /// </summary>
         [HttpPut("username/"), Authorize]
         public async Task<IActionResult> ChangeUsername
@@ -132,13 +143,14 @@ namespace GamesLibraryApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            if(! await _service.UpdateUsername(userId, newUsername)) 
-                return StatusCode(500);
+            bool upddateUsername = await _service.UpdateUsername(userId, newUsername);
+            if (!upddateUsername) return StatusCode(500);
+
             return Ok("Username has been updated.");
         }
 
         /// <summary>
-        ///     Change password
+        ///     Change your password
         /// </summary>
         [HttpPut("password/"), Authorize]
         public async Task<IActionResult> ChangePassword(
@@ -161,14 +173,15 @@ namespace GamesLibraryApi.Controllers
                 return BadRequest("You cannot use the old password" +
                     " as the new password.");
 
-            if (!await _service.UpdatePassword(userId, change.NewPassword!))
-                return StatusCode(500);
+            bool updatePassword = await _service
+                .UpdatePassword(userId, change.NewPassword!);
+            if (!updatePassword) return StatusCode(500);
 
             return Ok("Password has been updated.");
         }
 
         /// <summary>
-        ///     Change email address using newEmail
+        ///     Change your email address using newEmail
         /// </summary>
         [HttpPut("email/"), Authorize]
         public async Task<IActionResult> ChangeEmail(
@@ -191,14 +204,14 @@ namespace GamesLibraryApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _service.UpdateEmail(userId, newEmail)) 
-                return StatusCode(500);
+            bool updateEmail = await _service.UpdateEmail(userId, newEmail);
+            if (!updateEmail) return StatusCode(500);
 
             return Ok("Email has been updated.");
         }
 
         /// <summary>
-        ///     Delete a user
+        ///     Delete your account
         /// </summary>
         [HttpDelete, Authorize]
         public async Task<IActionResult> DeleteUser()
@@ -211,7 +224,10 @@ namespace GamesLibraryApi.Controllers
 
             var user = await _service.GetById(userId);
             if (user == null) return NotFound();
-            if (!await _service.Delete(userId)) return StatusCode(500);
+
+            bool deleteUser = await _service.Delete(userId);
+            if (!deleteUser) return StatusCode(500);
+
             return Ok("User has been deleted.");
         }
     }
