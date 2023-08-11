@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using GamesLibraryApi.Dto;
 using GamesLibraryApi.Models.Games;
 using GamesLibraryApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using GamesLibraryApi.Dto.Games;
 
 namespace GamesLibraryApi.Controllers
 {

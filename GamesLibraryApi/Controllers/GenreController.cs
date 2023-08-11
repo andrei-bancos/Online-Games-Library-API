@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GamesLibraryApi.Dto;
+using GamesLibraryApi.Dto.Games;
 using GamesLibraryApi.Interfaces;
 using GamesLibraryApi.Models.Games;
 using Microsoft.AspNetCore.Authorization;

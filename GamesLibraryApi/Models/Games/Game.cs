@@ -22,7 +22,7 @@ namespace GamesLibraryApi.Models.Games
         public ICollection<Media> Media { get; set; }
         public ICollection<CompatibilitySystem> CompatibilitySystems { get; set; }
         public ICollection<Language> Languages { get; set; }
-        [JsonIgnore]
         public ICollection<UserGamePurchase> UserGamePurchases { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }
