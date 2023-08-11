@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
-using GamesLibraryApi.Dto;
 using GamesLibraryApi.Models.Games;
 using GamesLibraryApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using GamesLibraryApi.Dto.Games;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,21 +12,23 @@ namespace GamesLibraryApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
     public class GameController : ControllerBase
     {
         private readonly IGameRepository _service;
-        private readonly IGenreRepository _serviceGenre;
-        private readonly ITagRepository _serviceTag;
+        private readonly IGenreRepository _genreService;
+        private readonly ITagRepository _tagService;
+        private readonly IUserRepository _userService;
         private readonly IMapper _mapper;
 
         public GameController(IGameRepository service, IMapper mapper, 
-            IGenreRepository serviceGenre, ITagRepository serviceTag)
+            IGenreRepository serviceGenre, ITagRepository serviceTag, 
+            IUserRepository userService)
         {
             _service = service;
             _mapper = mapper;
-            _serviceGenre = serviceGenre;
-            _serviceTag = serviceTag;
+            _genreService = serviceGenre;
+            _tagService = serviceTag;
+            _userService = userService;
         }
 
         // GET: api/<GameController>
@@ -70,11 +73,27 @@ namespace GamesLibraryApi.Controllers
             return Ok(mediaMap);
         }
 
+        /// <summary>
+        ///     Get all game reviews using a gameId
+        /// </summary>
+        [HttpGet("{gameId}/reviews")]
+        [AllowAnonymous]
+        public async Task<ActionResult> GetReviewsByGameId(int gameId)
+        {
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+            ICollection<Review> reviews = await _service
+                .GetReviewsByGameId(gameId)
+                .ConfigureAwait(false);
+            var reviewsMap = _mapper.Map<ICollection<ReviewDto>>(reviews);
+            return Ok(reviewsMap);
+        }
+
         // POST api/<GameController>/add
         /// <summary>
         ///     Add a new game
         /// </summary>
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddNewGame(GameDto newGame)
         {
             bool gameExists = await _service.CheckGameExists(newGame.Name!)
@@ -98,12 +117,13 @@ namespace GamesLibraryApi.Controllers
         ///     Add a genre to a game using gameId and genreId
         /// </summary>
         [HttpPost("{gameId}/genre/{genreId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddGenreToGame(int gameId, int genreId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
             if (game == null) return NotFound("Game not found.");
 
-            var genre = await _serviceGenre.GetById(genreId)
+            var genre = await _genreService.GetById(genreId)
                 .ConfigureAwait(false);
             if (genre == null) return NotFound("Genre not found.");
 
@@ -121,12 +141,13 @@ namespace GamesLibraryApi.Controllers
         ///     Add a tag using gameId and tagId
         /// </summary>
         [HttpPost("{gameId}/tag/{tagId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddTagToGame(int gameId, int tagId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
             if (game == null) return NotFound("Game not found.");
 
-            var tag = await _serviceTag.GetById(tagId).ConfigureAwait(false);
+            var tag = await _tagService.GetById(tagId).ConfigureAwait(false);
             if (tag == null) return NotFound("Tag not found.");
 
             bool tagAlreadyAdded = game.Tags.Any(t => t.Id == tagId);
@@ -142,6 +163,7 @@ namespace GamesLibraryApi.Controllers
         ///     Add media using gameId
         /// </summary>
         [HttpPost("{gameId}/media")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddMediaToGame(int gameId, MediaDto mediaDto)
         {
             var game = await _service.GetById(gameId);
@@ -166,6 +188,7 @@ namespace GamesLibraryApi.Controllers
         ///     Add a compatibility system to a game using gameId and systemId
         /// </summary>
         [HttpPost("{gameId}/system/{systemId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddSystemToGame(int gameId, int systemId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
@@ -189,6 +212,7 @@ namespace GamesLibraryApi.Controllers
         ///     Add a language to a game using gameId and langId
         /// </summary>
         [HttpPost("{gameId}/language/{langId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddLanguageToGame
             (int gameId, int langId)
         {
@@ -207,11 +231,76 @@ namespace GamesLibraryApi.Controllers
             return Ok("Language has been added to game");
         }
 
+        /// <summary>
+        ///     Add review to game using gameId
+        /// </summary>
+        [HttpPost("{gameId}/review"), Authorize(Roles = "User, Admin")]
+        public async Task<IActionResult> AddReviewToGame(int gameId, ReviewDto review)
+        {
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+                return BadRequest("User ID not found in token.");
+            var userId = int.Parse(userIdClaim.Value);
+
+            var user = await _userService.GetById(userId).ConfigureAwait(false);
+            if (user == null) return StatusCode(500);
+
+            bool checkOwnGame = user.UserGamePurchases
+                                .Any(ugp => ugp.GameId == gameId);
+            if (!checkOwnGame) return StatusCode(422, "You not own the game.");
+
+            var reviews = await _service.GetReviewsByGameId(gameId);
+            bool alreadyReview = reviews.Any(r => r.UserId == userId);
+            if (alreadyReview)
+                return StatusCode(422, "You cannot add more reviews");
+
+            var reviewMap = _mapper.Map<Review>(review);
+
+            bool addReview = await _service.AddReviewToGame(gameId, reviewMap, userId);
+            if (!addReview) return StatusCode(500);
+            return Ok("Review has been added.");
+        }
+
+        /// <summary>
+        ///     Edit your review
+        /// </summary>
+        [HttpPut("{gameId}/review"), Authorize(Roles = "User, Admin")]
+        public async Task<IActionResult> EditReview
+            (int gameId, string title, string text)
+        {
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+                return BadRequest("User ID not found in token.");
+            var userId = int.Parse(userIdClaim.Value);
+
+            var user = await _userService.GetById(userId).ConfigureAwait(false);
+            if (user == null) return StatusCode(500);
+
+            bool updateReview = await _service
+                .UpdateGameReview(gameId, userId, title, text);
+
+            var reviews = await _service.GetReviewsByGameId(gameId);
+            var foundReview = reviews.Any(r => r.UserId == userId);
+            if (!foundReview) return NotFound("Review not found.");
+
+            if (!updateReview) return StatusCode(500);
+            return Ok("Review has been updated.");
+        }
+
         // DELETE api/<GameController>/5
         /// <summary>
         ///     Delete a game using gameId
         /// </summary>
         [HttpDelete("{gameId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int gameId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
@@ -227,12 +316,13 @@ namespace GamesLibraryApi.Controllers
         ///     Delete a genre using gameId and genreId
         /// </summary>
         [HttpDelete("{gameId}/genre/{genreId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteGenre(int gameId, int genreId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
             if (game == null) return NotFound("Game not found.");
 
-            var genre = await _serviceGenre.GetById(genreId)
+            var genre = await _genreService.GetById(genreId)
                 .ConfigureAwait(false);
             if (genre == null) return NotFound("Genre not found.");
 
@@ -249,12 +339,13 @@ namespace GamesLibraryApi.Controllers
         ///     Delete a genre using gameId and genreId
         /// </summary>
         [HttpDelete("{gameId}/tag/{tagId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteTag(int gameId, int tagId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
             if (game == null) return NotFound("Game not found.");
 
-            var tag = await _serviceTag.GetById(tagId).ConfigureAwait(false);
+            var tag = await _tagService.GetById(tagId).ConfigureAwait(false);
             if (tag == null) return NotFound("Tag not found.");
 
             var isAdded = game.Tags.Any(t => t.Id == tagId);
@@ -270,6 +361,7 @@ namespace GamesLibraryApi.Controllers
         ///     Delete media using mediaId
         /// </summary>
         [HttpDelete("media/{mediaId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteMedia(int mediaId)
         {
             var media = await _service.GetMediaById(mediaId).ConfigureAwait(false);
@@ -285,6 +377,7 @@ namespace GamesLibraryApi.Controllers
         ///     Delete a compatibility system using gameId and systemId
         /// </summary>
         [HttpDelete("{gameId}/system/{systemId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteSystem(int gameId, int systemId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
@@ -307,6 +400,7 @@ namespace GamesLibraryApi.Controllers
         ///     Delete a language using gameId and langId
         /// </summary>
         [HttpDelete("{gameId}/language/{langId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteLanguage(int gameId, int langId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
@@ -321,6 +415,33 @@ namespace GamesLibraryApi.Controllers
             bool deleteLang = await _service.DeleteLang(gameId, langId);
             if (!deleteLang) return StatusCode(500);
             return Ok("Language has been deleted");
+        }
+
+        /// <summary>
+        ///     Delete your review
+        /// </summary>
+        [HttpDelete("{gameId}/review"), Authorize(Roles = "User, Admin")]
+        public async Task<IActionResult> DeleteGameReview(int gameId)
+        {
+            var game = await _service.GetById(gameId).ConfigureAwait(false);
+            if (game == null) return NotFound("Game not found.");
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+                return BadRequest("User ID not found in token.");
+            var userId = int.Parse(userIdClaim.Value);
+
+            var user = await _userService.GetById(userId).ConfigureAwait(false);
+            if (user == null) return StatusCode(500);
+
+            var reviews = await _service.GetReviewsByGameId(gameId);
+            bool foundReview = reviews.Any(r => r.UserId == userId);
+            if (!foundReview) return NotFound("Review not found.");
+
+            bool deleteReview = await _service.DeleteGameReview(gameId, userId);
+            if(!deleteReview) return StatusCode(500);
+            return Ok("Review has been deleted.");
         }
     }
 }

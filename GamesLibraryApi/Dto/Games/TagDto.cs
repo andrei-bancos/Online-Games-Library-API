@@ -1,6 +1,6 @@
-﻿namespace GamesLibraryApi.Dto
+﻿namespace GamesLibraryApi.Dto.Games
 {
-    public class GenreDto
+    public class TagDto
     {
         public int Id { get; set; }
         public string Name { get; set; }

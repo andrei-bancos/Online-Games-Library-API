@@ -1,4 +1,5 @@
 ﻿using GamesLibraryApi.Models.Games;
+using GamesLibraryApi.Models.Users;
 
 namespace GamesLibraryApi.Interfaces
 {
@@ -14,6 +15,10 @@ namespace GamesLibraryApi.Interfaces
         Task<CompatibilitySystem?> GetSystemById(int id);
         Task<bool> AddLanguageToGame(int gameId, int langId);
         Task<Language?> GetLangById(int id);
+        Task<bool> AddReviewToGame(int gameId, Review review, int userId);
+        Task<ICollection<Review>> GetReviewsByGameId(int id);
+        Task<bool> UpdateGameReview
+            (int gameId, int userId, string title, string text);
         Task<bool> DeleteGame(int id);
         Task<bool> DeleteGenre(int gameId, int genreId);
         Task<bool> DeleteTag(int gameId, int tagId);
@@ -23,6 +28,7 @@ namespace GamesLibraryApi.Interfaces
         Task<bool> CheckMediaExists(string url);
         Task<bool> AddMedia(int gameId, Media m);
         Task<Media?> GetMediaById(int id);
+        Task<bool> DeleteGameReview(int gameId, int userId);
         Task<bool> DeleteMedia(Media m);
         Task<bool> SaveAsync();
     }

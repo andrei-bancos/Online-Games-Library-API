@@ -19,6 +19,7 @@ namespace GamesLibraryApi.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<UserGamePurchase> UserGamePurchases 
             => Set<UserGamePurchase>();
+        public DbSet<Review> Reviews => Set<Review>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -60,6 +61,18 @@ namespace GamesLibraryApi.Data
                 .HasOne(ugp => ugp.Game)
                 .WithMany(g => g.UserGamePurchases)
                 .HasForeignKey(ugp => ugp.GameId);
+
+            // one to many Game <-> Review
+            modelBuilder.Entity<Game>()
+                .HasMany(g => g.Reviews)
+                .WithOne(g => g.Game)
+                .HasForeignKey(g => g.GameId);
+
+            // one to many User <-> Review
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Reviews)
+                .WithOne(u => u.User)
+                .HasForeignKey(u => u.UserId);
         }
     }
 }

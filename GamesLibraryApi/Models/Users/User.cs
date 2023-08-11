@@ -1,4 +1,6 @@
-﻿namespace GamesLibraryApi.Models.Users
+﻿using GamesLibraryApi.Models.Games;
+
+namespace GamesLibraryApi.Models.Users
 {
     public class User
     {
@@ -11,5 +13,6 @@
         public string Gender { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public ICollection<UserGamePurchase> UserGamePurchases { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using GamesLibraryApi.Models.Games;
 using Microsoft.EntityFrameworkCore;
 using GamesLibraryApi.Interfaces;
+using GamesLibraryApi.Models.Users;
 
 namespace GamesLibraryApi.Repository
 {
@@ -187,6 +188,59 @@ namespace GamesLibraryApi.Repository
         public async Task<Media?> GetMediaById(int id)
         {
             return await _context.Media.FindAsync(id);
+        }
+
+        public async Task<ICollection<Review>> GetReviewsByGameId(int id)
+        {
+            var reviews = await _context.Games
+                                        .Where(g => g.Id == id)
+                                        .SelectMany(g => g.Reviews)
+                                        .AsNoTracking().ToListAsync();
+            return reviews;
+        }
+
+        public async Task<bool> AddReviewToGame
+            (int gameId, Review review, int userId)
+        {
+            var game = await _context.Games.FindAsync(gameId);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (game == null || user == null) return false;
+
+            review.UserId = userId;
+            review.User = user;
+            review.Game = game;
+            review.GameId = gameId;
+            
+            _context.Reviews.Add(review);
+            
+            return await SaveAsync();
+        }
+
+        public async Task<bool> UpdateGameReview
+            (int gameId, int userId, string title, string text)
+        {
+            var review = await _context.Reviews
+                .FirstOrDefaultAsync(
+                r => r.GameId == gameId && r.UserId == userId
+                );
+            if (review == null) return false;
+
+            review.Title = title;
+            review.Text = text;
+
+            return await SaveAsync();
+        }
+
+        public async Task<bool> DeleteGameReview(int gameId, int userId)
+        {
+            var review = await _context.Reviews
+                .FirstOrDefaultAsync(
+                r => r.GameId == gameId && r.UserId == userId
+                );
+            if(review == null) return false;
+            _context.Reviews.Remove(review);
+            return await SaveAsync();
         }
 
         public async Task<bool> DeleteMedia(Media m)
