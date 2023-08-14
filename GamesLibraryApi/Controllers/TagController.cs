@@ -38,14 +38,15 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Return a tag using tagId
         /// </summary>
-        [HttpGet("{id}"), AllowAnonymous]
+        /// <param name="tagId">Id of tag</param>
+        [HttpGet("{tagId}"), AllowAnonymous]
         [ProducesResponseType(200, Type=typeof(TagDto))]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(int tagId)
         {
-            var tag = await _service.GetById(id);
+            var tag = await _service.GetById(tagId);
             if(tag == null) return NotFound();
 
-            var tagMap = _mapper.Map<TagDto>(await _service.GetById(id));
+            var tagMap = _mapper.Map<TagDto>(await _service.GetById(tagId));
             return Ok(tagMap);
         }
 
@@ -69,17 +70,19 @@ namespace GamesLibraryApi.Controllers
             bool addTag = await _service.Add(newTagMap);
             if (!addTag) return StatusCode(500);
 
-            return CreatedAtAction(nameof(GetById), new { id =  newTagMap!.Id }, newTagMap);
+            return CreatedAtAction(nameof(GetById), new { tagId =  newTagMap!.Id }, newTagMap);
         }
 
         // PUT api/<GenreController>/5
         /// <summary>
         ///     Edit a tag using tagId
         /// </summary>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> EditTag(int id, string name)
+        /// <param name="tagId">Id of tag</param>
+        /// <param name="name">New name</param>
+        [HttpPut("{tagId}")]
+        public async Task<IActionResult> EditTag(int tagId, string name)
         {
-            var tag = await _service.GetById(id);
+            var tag = await _service.GetById(tagId);
             if (tag == null) return NotFound();
 
             var checkTag = await _service.CheckTagExists(name);
@@ -90,7 +93,7 @@ namespace GamesLibraryApi.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            bool updateTag = await _service.Update(id, name);
+            bool updateTag = await _service.Update(tagId, name);
             if (!updateTag) return StatusCode(500);
             return Ok("Tag has been updated.");
         }
@@ -99,13 +102,14 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Delete a tag using tagId
         /// </summary>
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTag(int id)
+        /// <param name="tagId">Id of tag</param>
+        [HttpDelete("{tagId}")]
+        public async Task<IActionResult> DeleteTag(int tagId)
         {
-            var tag = await _service.GetById(id);
+            var tag = await _service.GetById(tagId);
             if(tag == null) return NotFound();
 
-            bool deleteTag = await _service.Delete(id);
+            bool deleteTag = await _service.Delete(tagId);
             if (!deleteTag) return StatusCode(500);
             return Ok("Tag has been deleted");
         }

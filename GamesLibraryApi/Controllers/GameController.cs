@@ -49,6 +49,7 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Return all informations about a game using gameId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
         [HttpGet("{gameId}")]
         [AllowAnonymous]
         public async Task<ActionResult<Game>> GetById(int gameId)
@@ -62,6 +63,7 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Get all media using a game id
         /// </summary>
+        /// <param name="gameId">Id of game</param>
         [HttpGet("{gameId}/media/")]
         [AllowAnonymous]
         public async Task<ActionResult> GetMediaByGameId(int gameId)
@@ -76,6 +78,7 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Get all game reviews using a gameId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
         [HttpGet("{gameId}/reviews")]
         [AllowAnonymous]
         public async Task<ActionResult> GetReviewsByGameId(int gameId)
@@ -116,6 +119,8 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Add a genre to a game using gameId and genreId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
+        /// <param name="genreId">Id of genre</param>
         [HttpPost("{gameId}/genre/{genreId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddGenreToGame(int gameId, int genreId)
@@ -140,6 +145,8 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Add a tag using gameId and tagId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
+        /// <param name="tagId">Id of tag</param>
         [HttpPost("{gameId}/tag/{tagId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddTagToGame(int gameId, int tagId)
@@ -162,6 +169,7 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Add media using gameId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
         [HttpPost("{gameId}/media")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddMediaToGame(int gameId, MediaDto mediaDto)
@@ -187,6 +195,8 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Add a compatibility system to a game using gameId and systemId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
+        /// <param name="systemId">Id of system</param>
         [HttpPost("{gameId}/system/{systemId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddSystemToGame(int gameId, int systemId)
@@ -211,6 +221,8 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Add a language to a game using gameId and langId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
+        /// <param name="langId">Id of language</param>
         [HttpPost("{gameId}/language/{langId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddLanguageToGame
@@ -234,6 +246,7 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Add review to game using gameId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
         [HttpPost("{gameId}/review"), Authorize(Roles = "User, Admin")]
         public async Task<IActionResult> AddReviewToGame(int gameId, ReviewDto review)
         {
@@ -268,6 +281,9 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Edit your review
         /// </summary>
+        /// <param name="gameId">Id of game</param>
+        /// <param name="title">New title</param>
+        /// <param name="text">New text</param>
         [HttpPut("{gameId}/review"), Authorize(Roles = "User, Admin")]
         public async Task<IActionResult> EditReview
             (int gameId, string title, string text)
@@ -299,6 +315,7 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Delete a game using gameId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
         [HttpDelete("{gameId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int gameId)
@@ -315,6 +332,8 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Delete a genre using gameId and genreId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
+        /// <param name="genreId">Id of genre</param>
         [HttpDelete("{gameId}/genre/{genreId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteGenre(int gameId, int genreId)
@@ -334,10 +353,12 @@ namespace GamesLibraryApi.Controllers
             return Ok("Genre has been deleted");
         }
 
-        // DELETE api/<GameController>/{gameId}/tag/{genreId}
+        // DELETE api/<GameController>/{gameId}/tag/{tagId}
         /// <summary>
-        ///     Delete a genre using gameId and genreId
+        ///     Delete a genre using gameId and tagId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
+        /// <param name="tagId">Id of tag</param>
         [HttpDelete("{gameId}/tag/{tagId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteTag(int gameId, int tagId)
@@ -360,6 +381,7 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Delete media using mediaId
         /// </summary>
+        /// <param name="mediaId">Id of media</param>
         [HttpDelete("media/{mediaId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteMedia(int mediaId)
@@ -376,6 +398,8 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Delete a compatibility system using gameId and systemId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
+        /// <param name="systemId">Id of system</param>
         [HttpDelete("{gameId}/system/{systemId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteSystem(int gameId, int systemId)
@@ -399,6 +423,8 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Delete a language using gameId and langId
         /// </summary>
+        /// <param name="gameId">Id of game</param>
+        /// <param name="langId">Id of language</param>
         [HttpDelete("{gameId}/language/{langId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteLanguage(int gameId, int langId)
@@ -420,6 +446,7 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Delete your review
         /// </summary>
+        /// <param name="gameId">Id of game</param>
         [HttpDelete("{gameId}/review"), Authorize(Roles = "User, Admin")]
         public async Task<IActionResult> DeleteGameReview(int gameId)
         {

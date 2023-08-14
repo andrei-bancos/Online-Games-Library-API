@@ -40,10 +40,11 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Return a genre using genreId
         /// </summary>
-        [HttpGet("{id}"), AllowAnonymous]
-        public async Task<ActionResult<GenreDto>> GetById(int id)
+        /// <param name="genreId">Id of genre</param>
+        [HttpGet("{genreId}"), AllowAnonymous]
+        public async Task<ActionResult<GenreDto>> GetById(int genreId)
         {
-            var genre = await _service.GetById(id);
+            var genre = await _service.GetById(genreId);
             if(genre == null) return NotFound();
 
             var genreMap = _mapper.Map<GenreDto>(genre);
@@ -70,17 +71,20 @@ namespace GamesLibraryApi.Controllers
             bool addGenre = await _service.Add(genreMap);
             if (!addGenre) return StatusCode(500);
 
-            return CreatedAtAction(nameof(GetById), new { id = genreMap!.Id }, genreMap);
+            return CreatedAtAction(nameof(GetById), 
+                new { genreId = genreMap!.Id }, genreMap);
         }
 
         // PUT api/<GenreController>/5
         /// <summary>
         ///     Edit a genre using genreId
         /// </summary>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, string name)
+        /// <param name="genreId">Id of genre</param>
+        /// <param name="name">New name</param>
+        [HttpPut("{genreId}")]
+        public async Task<IActionResult> Put(int genreId, string name)
         {
-            var genreToUpdate = await _service.GetById(id);
+            var genreToUpdate = await _service.GetById(genreId);
             if(genreToUpdate == null) return NotFound();
 
             var checkGenre = await _service.CheckGenreExists(name);
@@ -91,7 +95,7 @@ namespace GamesLibraryApi.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            bool genreUpdate = await _service.Update(id, name);
+            bool genreUpdate = await _service.Update(genreId, name);
             if (!genreUpdate) return StatusCode(500);
             return Ok("Genre has been changed.");
         }
@@ -100,13 +104,14 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Delete a genre using genreId
         /// </summary>
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        /// <param name="genreId">Id of genre</param>
+        [HttpDelete("{genreId}")]
+        public async Task<IActionResult> Delete(int genreId)
         {
-            var genre = await _service.GetById(id);
+            var genre = await _service.GetById(genreId);
             if (genre == null) return NotFound();
 
-            bool deleteGenre = await _service.Delete(id);
+            bool deleteGenre = await _service.Delete(genreId);
             if (!deleteGenre) return StatusCode(500);
             return Ok("Genre genre has deleted!");
         }

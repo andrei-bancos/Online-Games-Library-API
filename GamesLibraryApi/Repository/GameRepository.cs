@@ -28,6 +28,7 @@ namespace GamesLibraryApi.Repository
                 .Include(g => g.Media)
                 .Include(g => g.CompatibilitySystems)
                 .Include(g => g.Languages)
+                .Include(g => g.Reviews)
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
