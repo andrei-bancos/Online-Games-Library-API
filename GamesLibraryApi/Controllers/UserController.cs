@@ -39,6 +39,7 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Return user and games owned.
         /// </summary>
+        /// <param name="userId">Id of user</param>
         [HttpGet("{userId}"), Authorize]
         public async Task<ActionResult<ShowUserDto>> GetUserById(int userId)
         {
@@ -100,6 +101,8 @@ namespace GamesLibraryApi.Controllers
         /// <summary>
         ///     Add game to user using userId and gameId
         /// </summary>
+        /// <param name="userId">Id of user</param>
+        /// <param name="gameId">Id of game</param>
         [HttpPost("{userId}/game/{gameId}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddGameToUser(int userId, int gameId)
         {

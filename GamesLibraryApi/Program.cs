@@ -37,6 +37,7 @@ builder.Services.AddSwaggerGen(o =>
     });
 
     o.OperationFilter<SecurityRequirementsOperationFilter>();
+    o.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
 });
 
 builder.Services.AddAuthentication().AddJwtBearer(o =>

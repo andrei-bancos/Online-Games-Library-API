@@ -238,9 +238,9 @@ namespace GamesLibraryApi.Data
 
             var admin = new User
             {
-                Username = "andrei",
-                Email = "bancos.andrei.2002@gmail.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                Username = "admin",
+                Email = "admin@test.com",
+                Password = BCrypt.Net.BCrypt.HashPassword("Admin123"),
                 Role = "Admin",
                 Birthday = DateTime.Now,
                 Gender = "Male",
@@ -249,9 +249,9 @@ namespace GamesLibraryApi.Data
 
             var user = new User
             {
-                Username = "dorel",
-                Email = "dorel@test.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("user123"),
+                Username = "user",
+                Email = "user@test.com",
+                Password = BCrypt.Net.BCrypt.HashPassword("User123"),
                 Role = "User",
                 Birthday = DateTime.Now,
                 Gender = "Male",
