@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using GamesLibraryApi.Models.Games;
-using GamesLibraryApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GamesLibraryApi.Dto.Games;
 using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
+using GamesLibraryApi.Interfaces.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,15 +15,15 @@ namespace GamesLibraryApi.Controllers
     [ApiController]
     public class GameController : ControllerBase
     {
-        private readonly IGameRepository _service;
-        private readonly IGenreRepository _genreService;
-        private readonly ITagRepository _tagService;
-        private readonly IUserRepository _userService;
+        private readonly IGameService _service;
+        private readonly IGenreService _genreService;
+        private readonly ITagService _tagService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public GameController(IGameRepository service, IMapper mapper, 
-            IGenreRepository serviceGenre, ITagRepository serviceTag, 
-            IUserRepository userService)
+        public GameController(IGameService service, IMapper mapper, 
+            IGenreService serviceGenre, ITagService serviceTag, 
+            IUserService userService)
         {
             _service = service;
             _mapper = mapper;
@@ -52,11 +53,16 @@ namespace GamesLibraryApi.Controllers
         /// <param name="gameId">Id of game</param>
         [HttpGet("{gameId}")]
         [AllowAnonymous]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ShowGameDto>))]
         public async Task<ActionResult<Game>> GetById(int gameId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
             if(game == null) return NotFound();
-            return Ok(game);
+
+            var gameMap = _mapper.Map<ShowGameDto>(game);
+            gameMap.Reviews = _mapper.Map<ICollection<ShowReviewDto>>(game.Reviews);
+
+            return Ok(gameMap);
         }
 
         // GET api/<GameController>/media/{gameId}
@@ -88,7 +94,7 @@ namespace GamesLibraryApi.Controllers
             ICollection<Review> reviews = await _service
                 .GetReviewsByGameId(gameId)
                 .ConfigureAwait(false);
-            var reviewsMap = _mapper.Map<ICollection<ReviewDto>>(reviews);
+            var reviewsMap = _mapper.Map<ICollection<ShowReviewDto>>(reviews);
             return Ok(reviewsMap);
         }
 
@@ -175,10 +181,10 @@ namespace GamesLibraryApi.Controllers
         public async Task<IActionResult> AddMediaToGame(int gameId, MediaDto mediaDto)
         {
             var game = await _service.GetById(gameId);
+            if(game == null) return NotFound("Game not found.");
+
             var mediaMap = _mapper.Map<Media>(mediaDto);
             var checkMedia = await _service.CheckMediaExists(mediaMap.Url!);
-
-            if(game == null) return NotFound("Game not found.");
 
             if (checkMedia)
             {
@@ -247,7 +253,7 @@ namespace GamesLibraryApi.Controllers
         ///     Add review to game using gameId
         /// </summary>
         /// <param name="gameId">Id of game</param>
-        [HttpPost("{gameId}/review"), Authorize(Roles = "User, Admin")]
+        [HttpPost("{gameId}/review"), Authorize]
         public async Task<IActionResult> AddReviewToGame(int gameId, ReviewDto review)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
@@ -284,9 +290,10 @@ namespace GamesLibraryApi.Controllers
         /// <param name="gameId">Id of game</param>
         /// <param name="title">New title</param>
         /// <param name="text">New text</param>
-        [HttpPut("{gameId}/review"), Authorize(Roles = "User, Admin")]
+        /// <param name="recommended">Recommended</param>
+        [HttpPut("{gameId}/review"), Authorize]
         public async Task<IActionResult> EditReview
-            (int gameId, string title, string text)
+        (int gameId, string title, string text, [Required] bool recommended)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);
             if (game == null) return NotFound("Game not found.");
@@ -301,7 +308,7 @@ namespace GamesLibraryApi.Controllers
             if (user == null) return StatusCode(500);
 
             bool updateReview = await _service
-                .UpdateGameReview(gameId, userId, title, text);
+                .UpdateGameReview(gameId, userId, title, text, recommended);
 
             var reviews = await _service.GetReviewsByGameId(gameId);
             var foundReview = reviews.Any(r => r.UserId == userId);
@@ -447,7 +454,7 @@ namespace GamesLibraryApi.Controllers
         ///     Delete your review
         /// </summary>
         /// <param name="gameId">Id of game</param>
-        [HttpDelete("{gameId}/review"), Authorize(Roles = "User, Admin")]
+        [HttpDelete("{gameId}/review"), Authorize]
         public async Task<IActionResult> DeleteGameReview(int gameId)
         {
             var game = await _service.GetById(gameId).ConfigureAwait(false);

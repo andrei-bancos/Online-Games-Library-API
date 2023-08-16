@@ -1,16 +1,15 @@
 ﻿using GamesLibraryApi.Data;
 using GamesLibraryApi.Models.Games;
 using Microsoft.EntityFrameworkCore;
-using GamesLibraryApi.Interfaces;
-using GamesLibraryApi.Models.Users;
+using GamesLibraryApi.Interfaces.Services;
 
-namespace GamesLibraryApi.Repository
+namespace GamesLibraryApi.Services
 {
-    public class GameRepository : IGameRepository
+    public class GameService : IGameService
     {
         private readonly DataContext _context;
 
-        public GameRepository(DataContext context)
+        public GameService(DataContext context)
         {
             _context = context;
         }
@@ -209,8 +208,6 @@ namespace GamesLibraryApi.Repository
             if (game == null || user == null) return false;
 
             review.UserId = userId;
-            review.User = user;
-            review.Game = game;
             review.GameId = gameId;
             
             _context.Reviews.Add(review);
@@ -219,7 +216,7 @@ namespace GamesLibraryApi.Repository
         }
 
         public async Task<bool> UpdateGameReview
-            (int gameId, int userId, string title, string text)
+        (int gameId, int userId, string title, string text, bool recommended)
         {
             var review = await _context.Reviews
                 .FirstOrDefaultAsync(
@@ -229,6 +226,7 @@ namespace GamesLibraryApi.Repository
 
             review.Title = title;
             review.Text = text;
+            review.Recommended = recommended;
 
             return await SaveAsync();
         }

@@ -258,6 +258,83 @@ namespace GamesLibraryApi.Data
                 CreatedAt = DateTime.Now
             };
 
+            var ugp = new UserGamePurchase[]
+            {
+                new UserGamePurchase {
+                    UserId = 1,
+                    GameId = 2,
+                    PurchasePrice = games[1].Price,
+                    PurchaseDate = DateTime.Now
+                },
+                new UserGamePurchase {
+                    UserId = 1,
+                    GameId = 5,
+                    PurchasePrice = games[4].Price,
+                    PurchaseDate = DateTime.Now
+                },
+                new UserGamePurchase {
+                    UserId = 2,
+                    GameId = 1,
+                    PurchasePrice = games[0].Price,
+                    PurchaseDate = DateTime.Now
+                },
+                new UserGamePurchase {
+                    UserId = 2,
+                    GameId = 3,
+                    PurchasePrice = games[2].Price,
+                    PurchaseDate = DateTime.Now
+                }
+            };
+
+            var reviews = new Review[]
+            {
+                new Review {
+                    GameId = 2,
+                    UserId = 1,
+                    Title = "Living the High-Speed Dream!",
+                    Text = "GTA V has me living life in the fast lane! Cruis" +
+                    "ing through Los Santos feels crazy real, and those heis" +
+                    "ts? Heart-pounding excitement! Characters are like old " +
+                    "pals, and the attention to detail is unreal. Only downs" +
+                    "ide? Sometimes missions felt repetitive. But hey, it's " +
+                    "still my top pick for open-world fun.",
+                    Recommended = true
+                },
+                new Review { 
+                    GameId = 5, 
+                    UserId = 1, 
+                    Title = "Saddling Up for Adventure!", 
+                    Text = "Red Dead Redemption 2 is a wild west dream. Gall" +
+                    "oping across open plains? Check. Gunslinging showdowns?" +
+                    " Check. The world feels alive, but controls can be a bi" +
+                    "t wonky. Side quests kept me busy, maybe too busy. But " +
+                    "overall? Wrangled myself an epic time!", 
+                    Recommended = true 
+                },
+                new Review {
+                    GameId = 1,
+                    UserId = 2,
+                    Title = "Witcher",
+                    Text = "Witcher 3's fantasy world is insane! Magic, mons" +
+                    "ters, and quests that pull you in. Combat's a bit clunk" +
+                    "y, took me a while to get used to. Quests, on the other" +
+                    " hand? Almost too much to handle. But man, immersing my" +
+                    "self in that world was worth it!",
+                    Recommended = false
+                },
+                new Review {
+                    GameId = 3,
+                    UserId = 2,
+                    Title = "Skyrim - My Fantasy Playground!",
+                    Text = "Skyrim's like a fantasy playground! Exploring du" +
+                    "ngeons, fighting dragons – it's the stuff of legends. W" +
+                    "orld's massive, but sometimes things get glitchy. Quest" +
+                    "s? Endless. But hey, that's what I signed up for. Lost " +
+                    "track of time in this epic world.",
+                    Recommended = true
+                }
+            };
+
             context.Genres.AddRange(genres);
             context.Tags.AddRange(tags);
             context.CompatibilySystems.AddRange(systems);
@@ -265,6 +342,8 @@ namespace GamesLibraryApi.Data
             context.Games.AddRange(games);
             context.Users.Add(admin);
             context.Users.Add(user);
+            context.UserGamePurchases.AddRange(ugp);
+            context.Reviews.AddRange(reviews);
             context.SaveChanges();
         }
     }

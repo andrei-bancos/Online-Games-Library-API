@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using GamesLibraryApi.Dto.Users;
-using GamesLibraryApi.Interfaces;
+using GamesLibraryApi.Interfaces.Services;
 using GamesLibraryApi.Models.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +13,11 @@ namespace GamesLibraryApi.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserRepository _service;
-        private readonly IGameRepository _gameService;
+        private readonly IUserService _service;
+        private readonly IGameService _gameService;
         private readonly IMapper _mapper;
 
-        public UserController(IUserRepository service, IGameRepository gameService, IMapper mapper)
+        public UserController(IUserService service, IGameService gameService, IMapper mapper)
         {
             _service = service;
             _gameService = gameService;
@@ -227,6 +227,28 @@ namespace GamesLibraryApi.Controllers
 
             var user = await _service.GetById(userId);
             if (user == null) return NotFound();
+
+            if (user.Role == "Admin")
+                return StatusCode(422, "Administrators cannot be deleted");
+
+            bool deleteUser = await _service.Delete(userId);
+            if (!deleteUser) return StatusCode(500);
+
+            return Ok("User has been deleted.");
+        }
+
+        /// <summary>
+        ///     Delete user using userId
+        /// </summary>
+        [HttpDelete("{userId}"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUserById(int userId)
+        {
+            var user = await _service.GetById(userId)
+                .ConfigureAwait(false);
+            if(user == null) return NotFound("User not found.");
+
+            if (user.Role == "Admin") 
+                return StatusCode(422, "Administrators cannot be deleted");
 
             bool deleteUser = await _service.Delete(userId);
             if (!deleteUser) return StatusCode(500);

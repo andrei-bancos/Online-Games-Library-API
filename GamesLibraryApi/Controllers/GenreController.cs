@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using GamesLibraryApi.Dto.Games;
-using GamesLibraryApi.Interfaces;
+using GamesLibraryApi.Interfaces.Services;
 using GamesLibraryApi.Models.Games;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +14,10 @@ namespace GamesLibraryApi.Controllers
     [Authorize(Roles = "Admin")]
     public class GenreController : ControllerBase
     {
-        private readonly IGenreRepository _service;
+        private readonly IGenreService _service;
         private readonly IMapper _mapper;
 
-        public GenreController(IGenreRepository service, IMapper mapper)
+        public GenreController(IGenreService service, IMapper mapper)
         {
             _service = service;
             _mapper = mapper;

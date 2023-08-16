@@ -12,6 +12,7 @@ namespace GamesLibraryApi
         {
             CreateMap<Game, GameDto>();
             CreateMap<GameDto, Game>();
+            CreateMap<Game, ShowGameDto>();
             CreateMap<Genre, GenreDto>();
             CreateMap<GenreDto, Genre>();
             CreateMap<Tag, TagDto>();
@@ -20,6 +21,7 @@ namespace GamesLibraryApi
             CreateMap<MediaDto, Media>();
             CreateMap<Review, ReviewDto>();
             CreateMap<ReviewDto, Review>();
+            CreateMap<Review, ShowReviewDto>();
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
             CreateMap<ShowUserDto, User>();

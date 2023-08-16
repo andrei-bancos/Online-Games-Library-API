@@ -1,6 +1,8 @@
 using GamesLibraryApi.Data;
-using GamesLibraryApi.Interfaces;
+using GamesLibraryApi.Interfaces.Repository;
+using GamesLibraryApi.Interfaces.Services;
 using GamesLibraryApi.Repository;
+using GamesLibraryApi.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -44,6 +46,7 @@ builder.Services.AddAuthentication().AddJwtBearer(o =>
 {
     o.TokenValidationParameters = new TokenValidationParameters
     {
+        ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidateAudience = true,
         ValidAudience = "GamesLibrary",
@@ -57,10 +60,16 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<DataContext>(options => options.UseInMemoryDatabase("database"));
 
-builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IGameService, GameService>();
+
 builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+builder.Services.AddScoped<IGenreService, GenreService>();
+
 builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<ITagService, TagService>();
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
