@@ -1,9 +1,9 @@
 ﻿using GamesLibraryApi.Models.Users;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GamesLibraryApi.Interfaces
+namespace GamesLibraryApi.Interfaces.Services
 {
-    public interface IUserRepository
+    public interface IUserService
     {
         Task<ICollection<User>> GetAllUsers();
         Task<User?> GetById(int id);

@@ -1,5 +1,5 @@
 ﻿using GamesLibraryApi.Data;
-using GamesLibraryApi.Interfaces;
+using GamesLibraryApi.Interfaces.Repository;
 using GamesLibraryApi.Models.Games;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,30 +9,34 @@ namespace GamesLibraryApi.Repository
     {
         private readonly DataContext _context;
 
-        public GenreRepository(DataContext context)
+        public GenreRepository(DataContext dataContext)
         {
-            _context = context;
+            _context = dataContext;
         }
 
-        public async Task<ICollection<Genre>> GetGenres()
+        public async Task<ICollection<Genre>> GetAll()
         {
-            return await _context.Genres.AsNoTracking().ToListAsync();
+            var genres = await _context.Genres.AsNoTracking().ToListAsync();
+            return genres;
         }
 
-        public async Task<Genre?> GetById(int id)
+        public async Task<Genre?> Get(int id)
         {
-            return await _context.Genres.SingleOrDefaultAsync(g => g.Id == id);
+            var genre = await _context.Genres
+                                      .SingleOrDefaultAsync(g => g.Id == id);
+            return genre;
         }
 
-        public async Task<bool> CheckGenreExists(string name)
+        public async Task<bool> Exists(string name)
         {
-            return await _context.Genres
+            var exists = await _context.Genres
             .AnyAsync(g => g.Name.Trim().ToLower() == name.TrimEnd().ToLower());
+            return exists;
         }
 
-        public async Task<bool> Add(Genre newGenre)
+        public async Task<bool> Create(Genre genre)
         {
-            await _context.Genres.AddAsync(newGenre);
+            await _context.Genres.AddAsync(genre);
             return await SaveAsync();
         }
 
@@ -49,7 +53,7 @@ namespace GamesLibraryApi.Repository
         {
             var genreToDelete = await _context.Genres.FindAsync(id);
             if (genreToDelete == null) return false;
-             _context.Remove(genreToDelete);
+            _context.Remove(genreToDelete);
             return await SaveAsync();
         }
 

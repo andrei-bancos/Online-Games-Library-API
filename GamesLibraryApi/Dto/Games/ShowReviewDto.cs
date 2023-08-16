@@ -2,15 +2,12 @@
 
 namespace GamesLibraryApi.Dto.Games
 {
-    public class ReviewDto
+    public class ShowReviewDto
     {
         public int Id { get; set; }
-        [Required]
+        public int UserId { get; set; }
         public string? Title { get; set; }
-        [Required]
         public string? Text { get; set; }
-        [Required]
         public bool? Recommended { get; set; }
-
     }
 }

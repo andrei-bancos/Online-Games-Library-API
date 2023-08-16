@@ -7,6 +7,7 @@ namespace GamesLibraryApi.Models.Games
         public int Id { get; set; }
         public string Title { get; set; }
         public string Text { get; set; }
+        public bool Recommended { get; set; }
         public DateTime Date { get; set;} = DateTime.Now;
 
         public int GameId { get; set; }

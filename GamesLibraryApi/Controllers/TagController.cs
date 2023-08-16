@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using GamesLibraryApi.Models.Games;
-using GamesLibraryApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GamesLibraryApi.Dto.Games;
+using GamesLibraryApi.Interfaces.Services;
 
 namespace GamesLibraryApi.Controllers
 {
@@ -12,10 +12,10 @@ namespace GamesLibraryApi.Controllers
     [Authorize(Roles = "Admin")]
     public class TagController : ControllerBase
     {
-        private readonly ITagRepository _service;
+        private readonly ITagService _service;
         private readonly IMapper _mapper;
 
-        public TagController(ITagRepository service, IMapper mapper)
+        public TagController(ITagService service, IMapper mapper)
         {
             _service = service;
             _mapper = mapper;

@@ -1,8 +1,8 @@
 ﻿using GamesLibraryApi.Models.Games;
 
-namespace GamesLibraryApi.Interfaces
+namespace GamesLibraryApi.Interfaces.Services
 {
-    public interface IGenreRepository
+    public interface IGenreService
     {
         Task<ICollection<Genre>> GetGenres();
         Task<Genre?> GetById(int id);
@@ -10,6 +10,5 @@ namespace GamesLibraryApi.Interfaces
         Task<bool> Add(Genre newGenre);
         Task<bool> Update(int id, string name);
         Task<bool> Delete(int id);
-        Task<bool> SaveAsync();
     }
 }

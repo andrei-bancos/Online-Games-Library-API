@@ -1,5 +1,5 @@
 ﻿using GamesLibraryApi.Data;
-using GamesLibraryApi.Interfaces;
+using GamesLibraryApi.Interfaces.Repository;
 using GamesLibraryApi.Models.Games;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,32 +7,36 @@ namespace GamesLibraryApi.Repository
 {
     public class TagRepository : ITagRepository
     {
-        public readonly DataContext _context;
+        private readonly DataContext _context;
 
         public TagRepository(DataContext context)
         {
             _context = context;
         }
 
-        public async Task<ICollection<Tag>> GetTags()
+        public async Task<ICollection<Tag>> GetAll()
         {
-            return await _context.Tags.AsNoTracking().ToListAsync();
+            var tags = await _context.Tags.AsNoTracking().ToListAsync();
+            return tags;
         }
 
-        public async Task<Tag?> GetById(int id)
+        public async Task<Tag?> Get(int id)
         {
-            return await _context.Tags.SingleOrDefaultAsync(t => t.Id == id);
+            var tag = await _context.Tags
+                .SingleOrDefaultAsync(t => t.Id == id);
+            return tag;
         }
 
-        public async Task<bool> CheckTagExists(string name)
+        public async Task<bool> Exists(string name)
         {
-            return await _context.Tags
+            var exists = await _context.Tags
             .AnyAsync(t => t.Name.Trim().ToLower() == name.TrimEnd().ToLower());
+            return exists;
         }
 
-        public async Task<bool> Add(Tag newTag)
+        public async Task<bool> Create(Tag tag)
         {
-            await _context.Tags.AddAsync(newTag);
+            await _context.Tags.AddAsync(tag);
             return await SaveAsync();
         }
 
@@ -52,7 +56,6 @@ namespace GamesLibraryApi.Repository
             _context.Tags.Remove(tagToDelete);
             return await SaveAsync();
         }
-
 
         public async Task<bool> SaveAsync()
         {

@@ -1,9 +1,8 @@
 ﻿using GamesLibraryApi.Models.Games;
-using GamesLibraryApi.Models.Users;
 
-namespace GamesLibraryApi.Interfaces
+namespace GamesLibraryApi.Interfaces.Services
 {
-    public interface IGameRepository
+    public interface IGameService
     {
         Task<ICollection<Game>> GetGames();
         Task<Game?> GetById(int id);
@@ -18,7 +17,7 @@ namespace GamesLibraryApi.Interfaces
         Task<bool> AddReviewToGame(int gameId, Review review, int userId);
         Task<ICollection<Review>> GetReviewsByGameId(int id);
         Task<bool> UpdateGameReview
-            (int gameId, int userId, string title, string text);
+        (int gameId, int userId, string title, string text, bool recommended);
         Task<bool> DeleteGame(int id);
         Task<bool> DeleteGenre(int gameId, int genreId);
         Task<bool> DeleteTag(int gameId, int tagId);
