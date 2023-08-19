@@ -60,6 +60,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<DataContext>(options => options.UseInMemoryDatabase("database"));
 
+builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IGameService, GameService>();
 
 builder.Services.AddScoped<IGenreRepository, GenreRepository>();

@@ -6,41 +6,41 @@ namespace GamesLibraryApi.Services
 {
     public class GenreService : IGenreService
     {
-        private readonly IGenreRepository _genreRepository;
+        private readonly IGenreRepository _repository;
 
         public GenreService(IGenreRepository repository)
         {
-            _genreRepository = repository;
+            _repository = repository;
         }
 
         public async Task<ICollection<Genre>> GetGenres()
         {
-            return await _genreRepository.GetAll();
+            return await _repository.GetAll();
         }
 
         public async Task<Genre?> GetById(int id)
         {
-            return await _genreRepository.Get(id);
+            return await _repository.Get(id);
         }
 
         public async Task<bool> CheckGenreExists(string name)
         {
-            return await _genreRepository.Exists(name);
+            return await _repository.Exists(name);
         }
 
         public async Task<bool> Add(Genre newGenre)
         {
-            return await _genreRepository.Create(newGenre);
+            return await _repository.Create(newGenre);
         }
 
         public async Task<bool> Update(int id, string name)
         {
-            return await _genreRepository.Update(id, name);
+            return await _repository.Update(id, name);
         }
 
         public async Task<bool> Delete(int id)
         {
-            return await _genreRepository.Delete(id);
+            return await _repository.Delete(id);
         }
     }
 }
